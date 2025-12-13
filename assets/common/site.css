@@ -1,51 +1,4 @@
 /* Zolo shared styles – mobile-first landing/legal pages */
-
-/* Inter – English */
-@font-face {
-  font-family: "Inter";
-  src: url("/assets/fonts/inter/Inter-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Inter";
-  src: url("/assets/fonts/inter/Inter-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Inter";
-  src: url("/assets/fonts/inter/Inter-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Assistant – Hebrew */
-@font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/assistant/Assistant-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/assistant/Assistant-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/assistant/Assistant-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --primary: #f5a507;
   --primary-dark: #d99105;
@@ -66,7 +19,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: radial-gradient(circle at 20% 20%, rgba(245, 165, 7, 0.16), transparent 35%),
               radial-gradient(circle at 80% 10%, rgba(255, 183, 77, 0.2), transparent 32%),
               var(--background);
@@ -75,7 +28,7 @@ body {
 }
 
 html[dir="rtl"] body {
-  font-family: "Assistant", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
 }
 
 a { color: inherit; text-decoration: none; }
