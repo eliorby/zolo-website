@@ -58,13 +58,32 @@ header {
   align-items: center;
   gap: 10px;
   font-weight: 700;
-  font-size: 20px;
   letter-spacing: 0.2px;
 }
 
+.brand-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  line-height: 1;
+}
+
+.brand-name {
+  font-size: 34px;
+  font-weight: 700;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.brand-tagline {
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: 8px;
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
 .brand img {
-  width: 36px;
-  height: 36px;
   border-radius: 10px;
   box-shadow: 0 10px 24px rgba(0,0,0,0.08);
 }
