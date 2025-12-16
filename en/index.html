@@ -30,10 +30,12 @@
         </div>
       </div>
 
-      <nav class="lang-switch" aria-label="Language switch">
-        <a href="/he/">עב</a>
-        <a href="/en/" aria-current="page">EN</a>
-      </nav>
+      <div class="header-controls">
+        <button class="theme-toggle" type="button" aria-label="Theme: system" data-theme-btn>
+          <span aria-hidden="true">🖥️</span>
+        </button>
+        <button class="lang-toggle" type="button" aria-label="Language: Hebrew" data-lang-btn>עב</button>
+      </div>
     </header>
 
     <main>
@@ -68,24 +70,27 @@
       <section class="section">
         <div class="screenshots">
           <div class="shot">
-            <picture>
-              <source srcset="/assets/en/map_02_en_dark.png" media="(prefers-color-scheme: dark)">
-              <img src="/assets/en/map_02_en_light.png" alt="Map view zoom out">
-            </picture>
+            <img data-theme-img
+              data-light="/assets/en/map_02_en_light.png"
+              data-dark="/assets/en/map_02_en_dark.png"
+              src="/assets/en/map_02_en_light.png"
+              alt="Map view zoom out">
           </div>
 
           <div class="shot">
-            <picture>
-              <source srcset="/assets/en/place_details_en_dark.png" media="(prefers-color-scheme: dark)">
-              <img src="/assets/en/place_details_en_light.png" alt="Place details">
-            </picture>
+            <img data-theme-img
+              data-light="/assets/en/place_details_en_light.png"
+              data-dark="/assets/en/place_details_en_dark.png"
+              src="/assets/en/place_details_en_light.png"
+              alt="Place details">
           </div>
 
           <div class="shot">
-            <picture>
-              <source srcset="/assets/en/map_01_en_dark.png" media="(prefers-color-scheme: dark)">
-              <img src="/assets/en/map_01_en_light.png" alt="Map view zoom in">
-            </picture>
+            <img data-theme-img
+              data-light="/assets/en/map_01_en_light.png"
+              data-dark="/assets/en/map_01_en_dark.png"
+              src="/assets/en/map_01_en_light.png"
+              alt="Map view zoom in">
           </div>
         </div>
       </section>
@@ -105,6 +110,106 @@
       <div>© Zolo</div>
     </footer>
   </div>
+
+<script>
+(function () {
+  const btn = document.querySelector("[data-lang-btn]");
+  if (!btn) return;
+
+  function getLangFromPath(path) {
+    const p = (path || "/").toLowerCase();
+    if (p.startsWith("/he/") || p === "/he") return "he";
+    return "en";
+  }
+
+  function targetLang(current) {
+    return current === "he" ? "en" : "he";
+  }
+
+  function setLabel(current) {
+    // show what you will switch TO
+    btn.textContent = current === "he" ? "EN" : "עב";
+  }
+
+  function buildTargetUrl(newLang) {
+    const path = location.pathname || "/";
+    // Convert /en/... <-> /he/... while keeping the rest
+    if (path === "/" || path === "/index.html") return `/${newLang}/`;
+
+    // normalize cases like /en or /he
+    const normalized = path.endsWith("/") ? path : path + "/";
+
+    if (normalized.startsWith("/en/")) return normalized.replace("/en/", `/${newLang}/`);
+    if (normalized.startsWith("/he/")) return normalized.replace("/he/", `/${newLang}/`);
+
+    // if we're on root or some legacy path, just go to language home
+    return `/${newLang}/`;
+  }
+
+  const current = getLangFromPath(location.pathname);
+  setLabel(current);
+
+  btn.addEventListener("click", () => {
+    const cur = getLangFromPath(location.pathname);
+    const next = targetLang(cur);
+    const url = buildTargetUrl(next);
+    location.href = url + location.search + location.hash;
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const STORAGE_KEY = "zolo_theme"; // system | dark | light
+  const root = document.documentElement;
+  const btn = document.querySelector("[data-theme-btn]");
+  const mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+
+  const ICON = { system: "🖥️", dark: "🌙", light: "☀️" };
+  const LABEL = { system: "Theme: system", dark: "Theme: dark", light: "Theme: light" };
+
+  function systemPrefersDark() { return !!(mq && mq.matches); }
+  function effectiveTheme(mode) {
+    if (mode === "dark") return "dark";
+    if (mode === "light") return "light";
+    return systemPrefersDark() ? "dark" : "light";
+  }
+
+  function setBtn(mode){
+    if (!btn) return;
+    btn.innerHTML = '<span aria-hidden="true">' + ICON[mode] + '</span>';
+    btn.setAttribute("aria-label", LABEL[mode]);
+    btn.title = LABEL[mode];
+  }
+
+  function apply(mode){
+    root.setAttribute("data-theme", mode);
+    setBtn(mode);
+
+    const theme = effectiveTheme(mode);
+    document.querySelectorAll("img[data-theme-img]").forEach(img => {
+      const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
+      if (next && img.src !== next) img.src = next;
+    });
+  }
+
+  function getMode(){ return localStorage.getItem(STORAGE_KEY) || "system"; }
+  function setMode(mode){ localStorage.setItem(STORAGE_KEY, mode); apply(mode); }
+  function nextMode(mode){ return mode === "system" ? "dark" : (mode === "dark" ? "light" : "system"); }
+
+  // init
+  apply(getMode());
+
+  // click cycle
+  if (btn) btn.addEventListener("click", () => setMode(nextMode(getMode())));
+
+  // OS change (only when mode=system)
+  function onSystemChange(){ if (getMode() === "system") apply("system"); }
+  if (mq && mq.addEventListener) mq.addEventListener("change", onSystemChange);
+  else if (mq && mq.addListener) mq.addListener(onSystemChange);
+})();
+</script>
+
 </body>
 </html>
 

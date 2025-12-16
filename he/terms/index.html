@@ -18,18 +18,20 @@
 <body>
   <div class="page legal-page">
     <header>
-      <div class="brand">
+      <a class="brand" href="/he/" data-home-link>
         <img src="/assets/common/icon_zolo.png" alt="Zolo logo" width="36" height="36">
         <div class="brand-text">
           <span class="brand-name">זולו</span>
           <span class="brand-tagline">לבלות בזול</span>
         </div>
-      </div>
+      </a>
 
-      <nav class="lang-switch" aria-label="בחירת שפה">
-        <a href="/he/terms/" aria-current="page">עב</a>
-        <a href="/en/terms/">EN</a>
-      </nav>
+      <div class="header-controls">
+        <button class="theme-toggle" type="button" aria-label="Theme: system" data-theme-btn>
+          <span aria-hidden="true">🖥️</span>
+        </button>
+        <button class="lang-toggle" type="button" aria-label="Language: English" data-lang-btn>EN</button>
+      </div>
     </header>
 
     <main>
@@ -78,6 +80,62 @@
       <div>© זולו</div>
     </footer>
   </div>
+
+<script>
+(function () {
+  const btn = document.querySelector("[data-lang-btn]");
+  if (!btn) return;
+
+  function currentLang() {
+    const p = (location.pathname || "/").toLowerCase();
+    if (p.startsWith("/he/") || p === "/he") return "he";
+    return "en";
+  }
+
+  function labelFor(cur) {
+    // show target language
+    return cur === "he" ? "EN" : "עב";
+  }
+
+  function buildTarget(nextLang) {
+    const p = (location.pathname || "/").toLowerCase();
+
+    // Legacy root pages -> localized equivalents
+    const legacy = {
+      "/delete/": "/{L}/delete/",
+      "/delete":  "/{L}/delete/",
+      "/privacy/": "/{L}/privacy/",
+      "/privacy":  "/{L}/privacy/",
+      "/terms/": "/{L}/terms/",
+      "/terms":  "/{L}/terms/"
+    };
+
+    if (legacy[p]) return legacy[p].replace("{L}", nextLang);
+
+    // Normal localized pages: swap /en/ <-> /he/ and keep the rest
+    const withSlash = p.endsWith("/") ? p : p + "/";
+    if (withSlash.startsWith("/en/")) return withSlash.replace("/en/", `/${nextLang}/`);
+    if (withSlash.startsWith("/he/")) return withSlash.replace("/he/", `/${nextLang}/`);
+
+    // Root or anything unexpected
+    return `/${nextLang}/`;
+  }
+
+  function updateLabel() {
+    btn.textContent = labelFor(currentLang());
+  }
+
+  updateLabel();
+
+  btn.addEventListener("click", () => {
+    const cur = currentLang();
+    const next = cur === "he" ? "en" : "he";
+    const target = buildTarget(next);
+    location.href = target + location.search + location.hash;
+  });
+})();
+</script>
+
 </body>
 </html>
 
