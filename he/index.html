@@ -34,45 +34,61 @@
 
     <main>
       <section class="hero">
-        <h1>זולו</h1>
-        <p class="tagline">זולו - לבלות בזול</p>
-        <p class="description">
-          דילים של האפי האוור בזמן אמת בתל אביב. ברים, פאבים, מסעדות, בתי קפה.
-          צפו במה שקורה עכשיו או תכננו קדימה לכל יום בשבוע עם מפה אינטראקטיבית וסינונים חכמים.
+        <h1>דילים של האפי האוור בזמן אמת בתל אביב.</h1>
+        <h1>ברים, פאבים, מסעדות, בתי קפה.</h1>
+        <p class="secondary-description">
+          צפו במה שקורה עכשיו או תכננו קדימה לכל יום בשבוע<br>
+          עם מפה אינטראקטיבית וסינונים חכמים.
         </p>
+
         <div class="cta-row">
-          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.zolo.deals">הורדה מ-Google Play</a>
-          <a class="btn secondary" href="/he/app/">שיתוף האפליקציה</a>
+          <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+             aria-label="להורדה מ: Google Play">
+            <img
+              src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png"
+              alt="להורדה מ: Google Play"
+              style="height: 52px;">
+          </a>
         </div>
-        <ul class="feature-list">
-          <li class="feature-item"><span class="dot"></span><span>מפת דילים בזמן אמת עם סינון לפי סוגי מקומות.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>מה יש עכשיו או תכנון מראש לכל יום בשבוע.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>שליטה בתצוגה: להציג/להסתיר דילים שעומדים להתחיל או להסתיים.</span></li>
-        </ul>
-      </section>
 
-      <section class="section">
-        <h2>צילומי מסך</h2>
-        <div class="screenshots">
-          <div class="shot"><img src="/assets/he/map_01_he_light.png" alt="מפת זולו תאורה בהירה"></div>
-          <div class="shot"><img src="/assets/he/place_details_he_light.png" alt="פרטי עסק זולו"></div>
-          <div class="shot"><img src="/assets/he/map_02_he_light.png" alt="ציר זמן דילים"></div>
-          <div class="shot"><img src="/assets/he/blank_map_he_dark.png" alt="מפת זולו מצב כהה"></div>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2>אודות זולו</h2>
         <p>זולו חוסכת לך זמן וכסף על ידי הצגת דילים של האפי האוור בזמן אמת מברים, פאבים, מסעדות ובתי קפה בתל אביב.</p>
         <p>עם Zolo אפשר:</p>
         <ul class="feature-list">
           <li class="feature-item"><span class="dot"></span><span>לצפות בדילים על גבי מפה אינטראקטיבית.</span></li>
           <li class="feature-item"><span class="dot"></span><span>לסנן בתי-עסק ודילים כדי לראות רק מה שרלוונטי.</span></li>
           <li class="feature-item"><span class="dot"></span><span>לראות מה יש עכשיו, או לתכנן מראש לכל יום בשבוע.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>להציג או להסתיר דילים שעומדים להסתיים או להתחיל.</span></li>
+          <li class="feature-item"><span class="dot"></span><span>לשלוט בתצוגה: להציג או להסתיר דילים שעומדים להסתיים או להתחיל.</span></li>
         </ul>
-        <p><strong>זולו - לבלות בזול.</strong></p>
-        <p class="description">הצהרה: זולו אינה מתחייבת לדיוק, זמינות או תוקף של דיל, רישום או פרטי עסק. הדילים עשויים להשתנות או לפוג ללא הודעה. באחריות המשתמש לאמת פרטים מול העסק לפני הגעה או רכישה.</p>
+      </section>
+
+      <section class="section">
+        <div class="screenshots">
+          <div class="shot">
+            <picture>
+              <source srcset="/assets/he/map_02_he_dark.png" media="(prefers-color-scheme: dark)">
+              <img src="/assets/he/map_02_he_light.png" alt="תצוגת מפה זום אין">
+            </picture>
+          </div>
+
+          <div class="shot">
+            <picture>
+              <source srcset="/assets/he/place_details_he_dark.png" media="(prefers-color-scheme: dark)">
+              <img src="/assets/he/place_details_he_light.png" alt="פרטי עסק">
+            </picture>
+          </div>
+
+          <div class="shot">
+            <picture>
+              <source srcset="/assets/he/map_01_he_dark.png" media="(prefers-color-scheme: dark)">
+              <img src="/assets/he/map_01_he_light.png" alt="תצוגת מפה זום אאוט">
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>הצהרה</h2>
+        <p class="description">זולו אינה מתחייבת לדיוק, זמינות או תוקף של דיל, רישום או פרטי עסק. הדילים עשויים להשתנות או לפוג ללא הודעה. באחריות המשתמש לאמת פרטים מול העסק לפני הגעה או רכישה.</p>
       </section>
     </main>
 

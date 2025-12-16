@@ -34,35 +34,23 @@
 
     <main>
       <section class="hero">
-        <h1>Zolo</h1>
-        <p class="tagline">Zolo - Slicing Prices</p>
-        <p class="description">
-          Real-time happy hour deals in TLV. Bars, pubs, restaurants, cafés.
-          Browse what is on right now or plan the week ahead with live filters and an interactive map.
+        <h1>Real-time happy hour deals in TLV.</h1>
+        <h1>Bars, pubs, restaurants, cafés.</h1>
+        <p class="secondary-description">
+          Browse what is on right now or plan the week ahead<br>
+          with live filters and an interactive map.
         </p>
+
         <div class="cta-row">
-          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.zolo.deals">Get it on Google Play</a>
-          <a class="btn secondary" href="/en/app/">Share the app</a>
+          <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+             aria-label="Get it on Google Play">
+            <img
+              src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_English.png"
+              alt="Get it on Google Play"
+              style="height: 52px;">
+          </a>
         </div>
-        <ul class="feature-list">
-          <li class="feature-item"><span class="dot"></span><span>Browse deals on an interactive map and filter by venue type.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>See what's live now or schedule for any day of the week.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>Control the view: show or hide deals starting soon or ending shortly.</span></li>
-        </ul>
-      </section>
 
-      <section class="section">
-        <h2>Screenshots</h2>
-        <div class="screenshots">
-          <div class="shot"><img src="/assets/en/map_01_en_light.png" alt="Zolo map view light"></div>
-          <div class="shot"><img src="/assets/en/place_details_en_light.png" alt="Zolo place details"></div>
-          <div class="shot"><img src="/assets/en/map_02_en_light.png" alt="Zolo deals timeline"></div>
-          <div class="shot"><img src="/assets/en/blank_map_en_dark.png" alt="Zolo map dark mode"></div>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2>About Zolo</h2>
         <p>Zolo saves you time and money by showing real-time happy hour deals from bars, pubs, restaurants, and cafés in Tel Aviv.</p>
         <p>With Zolo, you can:</p>
         <ul class="feature-list">
@@ -71,8 +59,36 @@
           <li class="feature-item"><span class="dot"></span><span>See what’s on right now, or plan ahead for any day of the week.</span></li>
           <li class="feature-item"><span class="dot"></span><span>Control the view: show or hide deals that are about to end or start soon.</span></li>
         </ul>
-        <p><strong>Zolo - Slicing Prices.</strong></p>
-        <p class="description">Disclaimer: Zolo does not guarantee the accuracy, availability, or validity of any deal, listing, or venue information. Deals may change or expire without notice. Users must verify details directly with the business before visiting or purchasing.</p>
+      </section>
+
+      <section class="section">
+        <div class="screenshots">
+          <div class="shot">
+            <picture>
+              <source srcset="/assets/en/map_02_en_dark.png" media="(prefers-color-scheme: dark)">
+              <img src="/assets/en/map_02_en_light.png" alt="Map view zoom out">
+            </picture>
+          </div>
+
+          <div class="shot">
+            <picture>
+              <source srcset="/assets/en/place_details_en_dark.png" media="(prefers-color-scheme: dark)">
+              <img src="/assets/en/place_details_en_light.png" alt="Place details">
+            </picture>
+          </div>
+
+          <div class="shot">
+            <picture>
+              <source srcset="/assets/en/map_01_en_dark.png" media="(prefers-color-scheme: dark)">
+              <img src="/assets/en/map_01_en_light.png" alt="Map view zoom in">
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Disclaimer</h2>
+        <p class="description">Zolo does not guarantee the accuracy, availability, or validity of any deal, listing, or venue information. Deals may change or expire without notice. Users must verify details directly with the business before visiting or purchasing.</p>
       </section>
     </main>
 

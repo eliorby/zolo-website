@@ -109,11 +109,11 @@ main {
   letter-spacing: -0.4px;
 }
 
-.hero .tagline {
-  margin: 0;
+.hero .secondary-description {
   font-size: clamp(20px, 4.5vw, 26px);
   color: #181818;
   font-weight: 600;
+  line-height: 1.6;
 }
 
 .hero p.description {
@@ -293,7 +293,7 @@ footer {
   }
 
   .hero { border-color: rgba(255,255,255,0.06); }
-  .hero .tagline { color: #fefefe; }
+  .hero .secondary-description { color: #fefefe; }
   .hero p.description { color: rgba(255,255,255,0.78); }
   .section, .legal-card { background: #0e0e12; border-color: #1c1c22; }
   .shot { background: #0d0d10; border-color: #1c1c22; }
