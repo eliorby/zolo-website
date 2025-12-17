@@ -71,7 +71,6 @@
     <footer>
       <div class="footer-links">
         <a href="/he/terms/">תנאים</a>
-        <a href="/he/privacy/">פרטיות</a>
         <a href="/he/delete/">מחיקה</a>
       </div>
       <div>© זולו</div>
@@ -130,6 +129,58 @@
     const target = buildTarget(next);
     location.href = target + location.search + location.hash;
   });
+})();
+</script>
+
+<script>
+(function () {
+  const STORAGE_KEY = "zolo_theme"; // system | dark | light
+  const root = document.documentElement;
+  const btn = document.querySelector("[data-theme-btn]");
+  const mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+
+  const ICON = { system: "🖥️", dark: "🌙", light: "☀️" };
+  const LABEL = { system: "Theme: system", dark: "Theme: dark", light: "Theme: light" };
+
+  function systemPrefersDark() { return !!(mq && mq.matches); }
+  function effectiveTheme(mode) {
+    if (mode === "dark") return "dark";
+    if (mode === "light") return "light";
+    return systemPrefersDark() ? "dark" : "light";
+  }
+
+  function setBtn(mode){
+    if (!btn) return;
+    btn.innerHTML = '<span aria-hidden="true">' + ICON[mode] + '</span>';
+    btn.setAttribute("aria-label", LABEL[mode]);
+    btn.title = LABEL[mode];
+  }
+
+  function apply(mode){
+    root.setAttribute("data-theme", mode);
+    setBtn(mode);
+
+    const theme = effectiveTheme(mode);
+    document.querySelectorAll("img[data-theme-img]").forEach(img => {
+      const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
+      if (next && img.src !== next) img.src = next;
+    });
+  }
+
+  function getMode(){ return localStorage.getItem(STORAGE_KEY) || "system"; }
+  function setMode(mode){ localStorage.setItem(STORAGE_KEY, mode); apply(mode); }
+  function nextMode(mode){ return mode === "system" ? "dark" : (mode === "dark" ? "light" : "system"); }
+
+  // init
+  apply(getMode());
+
+  // click cycle
+  if (btn) btn.addEventListener("click", () => setMode(nextMode(getMode())));
+
+  // OS change (only when mode=system)
+  function onSystemChange(){ if (getMode() === "system") apply("system"); }
+  if (mq && mq.addEventListener) mq.addEventListener("change", onSystemChange);
+  else if (mq && mq.addListener) mq.addListener(onSystemChange);
 })();
 </script>
 
