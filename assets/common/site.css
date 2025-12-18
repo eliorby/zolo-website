@@ -60,16 +60,21 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--on-background-color);
   min-height: 100vh;
-  background: radial-gradient(circle at 20% 20%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
-              radial-gradient(circle at 80% 10%, rgb(var(--primary-rgb-color) / 0.20), transparent 32%),
-              var(--background-color);
-}
 
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(circle at 20% 20%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgb(var(--primary-rgb-color) / 0.20), transparent 32%),
+    var(--background-color);
+}
 html[dir="rtl"] body {
   font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: /* circle at <x> <y> -> circle at <100-x> */
+    radial-gradient(circle at 80% 20%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+    radial-gradient(circle at 20% 10%, rgb(var(--primary-rgb-color) / 0.20), transparent 32%),
+    var(--background-color);
 }
 
 a {
@@ -194,11 +199,21 @@ main {
 }
 
 .hero {
-  background: linear-gradient(135deg, rgb(var(--primary-rgb-color) / 0.15), rgb(var(--primary-rgb-color) / 0.80));
   border: 1px solid var(--on-background-border-color);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: 0 20px 45px var(--on-background-shadow);
+
+  background: linear-gradient(135deg,
+    rgb(var(--primary-rgb-color) / 0.15),
+    rgb(var(--primary-rgb-color) / 0.80)
+  );
+}
+html[dir="rtl"] .hero {
+  background: linear-gradient(225deg, /* 360-x */
+    rgb(var(--primary-rgb-color) / 0.15),
+    rgb(var(--primary-rgb-color) / 0.80)
+  );
 }
 
 .hero h1 {
@@ -397,9 +412,18 @@ footer {
   }
 
   body {
-    background: radial-gradient(circle at 12% 18%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
-                radial-gradient(circle at 90% 12%, rgb(var(--primary-rgb-color) / 0.12), transparent 32%),
-                var(--background-color);
+    background:
+      radial-gradient(circle at 12% 18%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+      radial-gradient(circle at 90% 12%, rgb(var(--primary-rgb-color) / 0.12), transparent 32%),
+      var(--background-color);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  html[dir="rtl"] body {
+    background:
+      radial-gradient(circle at 88% 18%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+      radial-gradient(circle at 10% 12%, rgb(var(--primary-rgb-color) / 0.12), transparent 32%),
+      var(--background-color);
   }
 }
 
@@ -422,9 +446,16 @@ html[data-theme="dark"] {
   --control-background-hover-color: var(--control-background-hover-color-dark);
 }
 html[data-theme="dark"] body {
-  background: radial-gradient(circle at 12% 18%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
-              radial-gradient(circle at 90% 12%, rgb(var(--primary-rgb-color) / 0.12), transparent 32%),
-              var(--background-color);
+  background:
+    radial-gradient(circle at 12% 18%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+    radial-gradient(circle at 90% 12%, rgb(var(--primary-rgb-color) / 0.12), transparent 32%),
+    var(--background-color);
+}
+html[dir="rtl"][data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 88% 18%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+    radial-gradient(circle at 10% 12%, rgb(var(--primary-rgb-color) / 0.12), transparent 32%),
+    var(--background-color);
 }
 
 /* Light mode → force light */
@@ -446,7 +477,14 @@ html[data-theme="light"] {
   --control-background-hover-color: var(--control-background-hover-color-light);
 }
 html[data-theme="light"] body {
-  background: radial-gradient(circle at 20% 20%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
-              radial-gradient(circle at 80% 10%, rgb(var(--primary-rgb-color) / 0.20), transparent 32%),
-              var(--background-color);
+  background:
+    radial-gradient(circle at 20% 20%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgb(var(--primary-rgb-color) / 0.20), transparent 32%),
+    var(--background-color);
+}
+html[dir="rtl"][data-theme="light"] body {
+  background:
+    radial-gradient(circle at 80% 20%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),
+    radial-gradient(circle at 20% 10%, rgb(var(--primary-rgb-color) / 0.20), transparent 32%),
+    var(--background-color);
 }
