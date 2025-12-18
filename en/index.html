@@ -40,31 +40,50 @@
 
     <main>
       <section class="hero">
-        <h1>Real-time happy hour deals in TLV.</h1>
-        <h1>Bars, pubs, restaurants, cafés.</h1>
-        <p class="secondary-description">
-          Browse what is on right now or plan the week ahead<br>
-          with live filters and an interactive map.
-        </p>
+        <div class="hero-text">
+          <h1>Real-time happy hour deals in TLV.</h1>
+          <h1>Bars, pubs, restaurants, cafés.</h1>
+          <p class="secondary-description">
+            Browse what is on right now or plan the week ahead,
+            with live filters and an interactive map.
+          </p>
 
-        <div class="cta-row">
-          <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
-             aria-label="Get it on Google Play">
-            <img
-              src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_English.png"
-              alt="Get it on Google Play"
-              style="height: 52px;">
-          </a>
+          <div class="cta-row">
+            <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+               aria-label="Get it on Google Play">
+              <img
+                src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_English.png"
+                alt="Get it on Google Play"
+                style="height: 52px;">
+            </a>
+          </div>
+
+          <p>Zolo saves you time and money by showing real-time happy hour deals from bars, pubs, restaurants, and cafés in Tel Aviv.</p>
+          <p>With Zolo, you can:</p>
+          <ul class="feature-list">
+            <li class="feature-item"><span class="dot"></span><span>Browse happy hour deals on an interactive map.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>Filter venues and deals to see only what’s relevant.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>See what’s on right now, or plan ahead for any day of the week.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>Show or hide deals that are about to start or end.</span></li>
+          </ul>
         </div>
 
-        <p>Zolo saves you time and money by showing real-time happy hour deals from bars, pubs, restaurants, and cafés in Tel Aviv.</p>
-        <p>With Zolo, you can:</p>
-        <ul class="feature-list">
-          <li class="feature-item"><span class="dot"></span><span>Browse happy hour deals on an interactive map.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>Filter venues and deals to see only what’s relevant.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>See what’s on right now, or plan ahead for any day of the week.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>Control the view: show or hide deals that are about to end or start soon.</span></li>
-        </ul>
+        <div class="hero-phone">
+          <div
+            class="hero-phone-bg"
+            data-hero-bg
+            data-light="/assets/en/map_02_en_light_cropped.png"
+            data-dark="/assets/en/map_02_en_dark_cropped.png"
+            aria-hidden="true"></div>
+
+          <img
+            class="hero-phone-img"
+            data-theme-img
+            data-light="/assets/en/place_details_en_light_mockup.png"
+            data-dark="/assets/en/place_details_en_dark_mockup.png"
+            src="/assets/en/place_details_en_light_mockup.png"
+            alt="Zolo app place details screen">
+        </div>
       </section>
 
       <section class="section">
@@ -190,6 +209,10 @@
     document.querySelectorAll("img[data-theme-img]").forEach(img => {
       const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
       if (next && img.src !== next) img.src = next;
+    });
+    document.querySelectorAll("[data-hero-bg]").forEach(el => {
+      const next = el.getAttribute(theme === "dark" ? "data-dark" : "data-light");
+      if (next) el.style.backgroundImage = `url("${next}")`;
     });
   }
 

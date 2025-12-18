@@ -111,7 +111,6 @@ header {
   text-decoration: none;
   color: inherit;
 }
-
 .brand:hover {
   opacity: 0.9;
 }
@@ -165,12 +164,10 @@ header {
   line-height: 1;
   font-size: 16px; /* emoji size */
 }
-
 .theme-toggle:hover {
   background: var(--control-background-hover-color);
   transform: translateY(-1px);
 }
-
 .theme-toggle:focus-visible {
   outline: 2px solid rgb(var(--primary-rgb-color) / 0.7);
   outline-offset: 2px;
@@ -186,7 +183,6 @@ header {
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
-
 .lang-toggle:hover {
   background: var(--control-background-hover-color);
   transform: translateY(-1px);
@@ -199,6 +195,15 @@ main {
 }
 
 .hero {
+  position: relative;
+
+  /* mobile: stacked */
+  display: grid;
+  gap: 18px;
+  align-items: start;
+
+  overflow: hidden;
+
   border: 1px solid var(--on-background-border-color);
   border-radius: var(--radius-lg);
   padding: 24px;
@@ -216,13 +221,48 @@ html[dir="rtl"] .hero {
   );
 }
 
+/* Phone column wrapper (becomes the height reference + clipping layer) */
+.hero-phone {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  min-height: 220px;  /* optional safety for short screens */
+}
+
+.hero-phone-bg {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+
+  inset: 0;  /* fill hero-phone */
+  transform: scale(0.90);
+
+  /* if scale is more than 1 */
+  border-radius: 28px;
+  overflow: hidden;
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.hero-phone-img {
+  position: relative;
+  z-index: 1;
+  width: min(360px, 92%);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 22px 45px rgba(0,0,0,0.30));
+  object-fit: contain;
+}
+
 .hero h1 {
   margin: 0 0 6px;
   font-size: clamp(32px, 6vw, 42px);
   letter-spacing: -0.4px;
 }
 
-.hero .secondary-description {
+.secondary-description {
   font-size: clamp(20px, 4.5vw, 26px);
   color: var(--on-background-color);
   font-weight: 600;
@@ -391,6 +431,39 @@ footer {
   .legal-card { padding: 22px 20px 26px; }
 }
 
+/* Desktop */
+@media (min-width: 860px) {
+  .hero {
+    padding: 32px;
+
+    /* two columns, no overlap possible */
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+    column-gap: 24px;
+    align-items: start;
+  }
+
+  .hero-phone {
+    /* text drives height, phone matches that height */
+    position: absolute;
+    inset-block: 32px;         /* same as hero padding */
+    inset-inline-end: 32px;    /* anchor to end like mockups, same as hero padding */
+    width: min(520px, 42vw);
+  }
+
+  /* map bg height follows phone wrapper height */
+  .hero-phone-bg {
+    height: 100%;
+    width: 100%;
+  }
+
+  /* phone height follows hero/card height */
+  .hero-phone-img {
+    height: 100%;
+    width: auto;
+    max-width: min(420px, 34vw);
+  }
+}
+
 /* System mode (dark) */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -417,8 +490,6 @@ footer {
       radial-gradient(circle at 90% 12%, rgb(var(--primary-rgb-color) / 0.12), transparent 32%),
       var(--background-color);
   }
-}
-@media (prefers-color-scheme: dark) {
   html[dir="rtl"] body {
     background:
       radial-gradient(circle at 88% 18%, rgb(var(--primary-rgb-color) / 0.16), transparent 35%),

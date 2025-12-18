@@ -40,31 +40,50 @@
 
     <main>
       <section class="hero">
-        <h1>דילים של האפי האוור בזמן אמת בתל אביב.</h1>
-        <h1>ברים, פאבים, מסעדות, בתי קפה.</h1>
-        <p class="secondary-description">
-          צפו במה שקורה עכשיו או תכננו קדימה לכל יום בשבוע<br>
-          עם מפה אינטראקטיבית וסינונים חכמים.
-        </p>
+        <div class="hero-text">
+          <h1>דילים של האפי האוור בזמן אמת בתל אביב.</h1>
+          <h1>ברים, פאבים, מסעדות, בתי קפה.</h1>
+          <p class="secondary-description">
+            צפו במה שקורה עכשיו או תכננו קדימה לכל יום בשבוע,
+            עם מפה אינטראקטיבית וסינונים חכמים.
+          </p>
 
-        <div class="cta-row">
-          <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
-             aria-label="להורדה מ: Google Play">
-            <img
-              src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png"
-              alt="להורדה מ: Google Play"
-              style="height: 52px;">
-          </a>
+          <div class="cta-row">
+            <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+               aria-label="להורדה מ: Google Play">
+              <img
+                src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png"
+                alt="להורדה מ: Google Play"
+                style="height: 52px;">
+            </a>
+          </div>
+
+          <p>זולו חוסכת לך זמן וכסף על ידי הצגת דילים של האפי האוור בזמן אמת מברים, פאבים, מסעדות ובתי קפה בתל אביב.</p>
+          <p>עם Zolo אפשר:</p>
+          <ul class="feature-list">
+            <li class="feature-item"><span class="dot"></span><span>לצפות בדילים על גבי מפה אינטראקטיבית.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>לסנן בתי-עסק ודילים כדי לראות רק מה שרלוונטי.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>לראות מה יש עכשיו, או לתכנן מראש לכל יום בשבוע.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>להציג או להסתיר דילים שעומדים להתחיל או להסתיים.</span></li>
+          </ul>
         </div>
 
-        <p>זולו חוסכת לך זמן וכסף על ידי הצגת דילים של האפי האוור בזמן אמת מברים, פאבים, מסעדות ובתי קפה בתל אביב.</p>
-        <p>עם Zolo אפשר:</p>
-        <ul class="feature-list">
-          <li class="feature-item"><span class="dot"></span><span>לצפות בדילים על גבי מפה אינטראקטיבית.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>לסנן בתי-עסק ודילים כדי לראות רק מה שרלוונטי.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>לראות מה יש עכשיו, או לתכנן מראש לכל יום בשבוע.</span></li>
-          <li class="feature-item"><span class="dot"></span><span>לשלוט בתצוגה: להציג או להסתיר דילים שעומדים להסתיים או להתחיל.</span></li>
-        </ul>
+        <div class="hero-phone">
+          <div
+            class="hero-phone-bg"
+            data-hero-bg
+            data-light="/assets/he/map_02_he_light_cropped.png"
+            data-dark="/assets/he/map_02_he_dark_cropped.png"
+            aria-hidden="true"></div>
+
+          <img
+            class="hero-phone-img"
+            data-theme-img
+            data-light="/assets/he/place_details_he_light_mockup.png"
+            data-dark="/assets/he/place_details_he_dark_mockup.png"
+            src="/assets/he/place_details_he_light_mockup.png"
+            alt="Zolo app place details screen">
+        </div>
       </section>
 
       <section class="section">
@@ -190,6 +209,10 @@
     document.querySelectorAll("img[data-theme-img]").forEach(img => {
       const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
       if (next && img.src !== next) img.src = next;
+    });
+    document.querySelectorAll("[data-hero-bg]").forEach(el => {
+      const next = el.getAttribute(theme === "dark" ? "data-dark" : "data-light");
+      if (next) el.style.backgroundImage = `url("${next}")`;
     });
   }
 
