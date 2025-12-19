@@ -144,9 +144,9 @@ header {
 }
 
 .header-controls {
-  display:flex;
-  align-items:center;
-  gap:10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .theme-toggle {
@@ -385,10 +385,10 @@ footer {
 }
 
 .footer-disclaimer{
-  flex-basis:100%;
-  font-size:12px;
-  opacity:.75;
-  line-height:1.4;
+  flex-basis: 100%;
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.4;
 }
 
 .legal-page main {
