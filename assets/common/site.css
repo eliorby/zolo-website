@@ -225,7 +225,7 @@ html[dir="rtl"] .hero {
 .hero-phone {
   position: relative;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;  /* mobile */
   min-height: 220px;  /* optional safety for short screens */
 }
 
@@ -437,6 +437,7 @@ footer {
     padding: 32px;
 
     /* two columns, no overlap possible */
+    display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
     column-gap: 24px;
     align-items: start;
