@@ -252,8 +252,15 @@ html[dir="rtl"] .hero {
   width: min(360px, 92%);
   height: auto;
   display: block;
-  filter: drop-shadow(0 22px 45px rgba(0,0,0,0.30));
   object-fit: contain;
+  filter:
+    drop-shadow(0 10px 12px rgba(0,0,0,.50))  /* bottom shadow */
+    drop-shadow(10px 0 12px rgba(0,0,0,.50));  /* right shadow */
+}
+html[dir="rtl"] .hero-phone-img {
+  filter:
+    drop-shadow(0 10px 12px rgba(0,0,0,.50))  /* bottom shadow */
+    drop-shadow(-10px 0 12px rgba(0,0,0,.50));  /* left shadow */
 }
 
 .hero h1 {
