@@ -440,30 +440,23 @@ footer {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
     column-gap: 24px;
-    align-items: start;
   }
 
   .hero-phone {
     justify-content: flex-end;
+    min-height: 0;  /* set on smartphone, might force extra height on desktop */
 
     /* text drives height, phone matches that height */
-    position: absolute;
-    inset-block: 32px;         /* same as hero padding */
-    inset-inline-end: 32px;    /* anchor to end like mockups, same as hero padding */
-    width: min(520px, 42vw);
-  }
-
-  /* map bg height follows phone wrapper height */
-  .hero-phone-bg {
-    height: 100%;
-    width: 100%;
+    align-self: stretch;  /* match the row height */
+    height: auto;         /* let the grid row define it */
   }
 
   /* phone height follows hero/card height */
   .hero-phone-img {
+    position: absolute;
     height: 100%;
     width: auto;
-    max-width: min(420px, 34vw);
+    max-width: min(420px, 34vw);  /* optional */
   }
 }
 
