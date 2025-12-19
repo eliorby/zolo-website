@@ -438,6 +438,13 @@ footer {
   .legal-card { padding: 22px 20px 26px; }
 }
 
+/* Mobile: hide the map background behind the phone */
+@media (max-width: 859px) {
+  .hero-phone-bg {
+    display: none;
+  }
+}
+
 /* Desktop */
 @media (min-width: 860px) {
   .hero {
