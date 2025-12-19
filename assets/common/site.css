@@ -222,19 +222,19 @@ html[dir="rtl"] .hero {
 }
 
 /* Phone column wrapper (becomes the height reference + clipping layer) */
-.hero-phone {
+.hero-images {
   position: relative;
   display: flex;
   justify-content: center;  /* mobile */
   min-height: 220px;  /* optional safety for short screens */
 }
 
-.hero-phone-bg {
+.hero-images-background {
   position: absolute;
   z-index: 0;
   pointer-events: none;
 
-  inset: 0;  /* fill hero-phone */
+  inset: 0;  /* fill hero-images */
   transform: scale(0.90);
 
   /* if scale is more than 1 */
@@ -246,7 +246,7 @@ html[dir="rtl"] .hero {
   background-position: 50% 50%;
 }
 
-.hero-phone-img {
+.hero-images-mockup {
   position: relative;
   z-index: 1;
   width: min(360px, 92%);
@@ -257,7 +257,7 @@ html[dir="rtl"] .hero {
     drop-shadow(0 10px 12px rgba(0,0,0,.50))  /* bottom shadow */
     drop-shadow(10px 0 12px rgba(0,0,0,.50));  /* right shadow */
 }
-html[dir="rtl"] .hero-phone-img {
+html[dir="rtl"] .hero-images-mockup {
   filter:
     drop-shadow(0 10px 12px rgba(0,0,0,.50))  /* bottom shadow */
     drop-shadow(-10px 0 12px rgba(0,0,0,.50));  /* left shadow */
@@ -353,23 +353,26 @@ html[dir="rtl"] .hero-phone-img {
 
 .screenshots {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
+
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .shot {
-  background: var(--on-surface-color);
+  display: grid;
   border: 1px solid var(--on-surface-border-color);
   border-radius: var(--radius-sm);
-  padding: 10px;
   box-shadow: 0 12px 22px rgba(0,0,0,0.08);
+  aspect-ratio: 6 / 13;   /* screenshot images are 1080x2340 */
+  overflow: hidden;       /* needed for object-fit: cover */
 }
 
 .shot img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   border-radius: 12px;
+  object-fit: cover;  /* "cover" fills the tile, looks “full”, but may crop edges. "contain" doesn't crop, but may leave empty space. */
 }
 
 footer {
@@ -431,6 +434,32 @@ footer {
   word-break: break-word;
 }
 
+/* Mobile */
+@media (max-width: 719px) {
+  /* horizontal scroll, swipe carousel */
+  .screenshots {
+    display: grid;
+    gap: 14px;
+
+    grid-auto-flow: column;
+    grid-auto-columns: 85vw;
+    overflow-x: auto;
+
+    padding-bottom: 6px;
+
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* optional: hide scrollbar without killing usability */
+  .screenshots::-webkit-scrollbar { height: 8px; }
+  .screenshots::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.18);
+    border-radius: 999px;
+  }
+
+  .shot { scroll-snap-align: start; }
+}
+
 /* Desktop */
 @media (min-width: 720px) {
   header { padding: 18px 0 10px; }
@@ -441,7 +470,7 @@ footer {
 
 /* Mobile */
 @media (max-width: 859px) {
-  .hero-phone-bg {
+  .hero-images-background {
     display: none;  /* hide the map background behind the phone */
   }
 }
@@ -457,17 +486,17 @@ footer {
     column-gap: 24px;
   }
 
-  .hero-phone {
+  .hero-images {
     justify-content: flex-end;
-    min-height: 0;  /* set on smartphone, might force extra height on desktop */
+    min-height: 0;  /* set on mobile, might force extra height on desktop */
 
-    /* text drives height, phone matches that height */
+    /* text drives height, mockup image matches that height */
     align-self: stretch;  /* match the row height */
     height: auto;         /* let the grid row define it */
   }
 
-  /* phone height follows hero/card height */
-  .hero-phone-img {
+  /* mockup image height follows hero/card height */
+  .hero-images-mockup {
     position: absolute;
     height: 100%;
     width: auto;
