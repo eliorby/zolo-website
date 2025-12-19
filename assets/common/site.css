@@ -431,6 +431,7 @@ footer {
   word-break: break-word;
 }
 
+/* Desktop */
 @media (min-width: 720px) {
   header { padding: 18px 0 10px; }
   .hero { padding: 28px; }
@@ -438,10 +439,10 @@ footer {
   .legal-card { padding: 22px 20px 26px; }
 }
 
-/* Mobile: hide the map background behind the phone */
+/* Mobile */
 @media (max-width: 859px) {
   .hero-phone-bg {
-    display: none;
+    display: none;  /* hide the map background behind the phone */
   }
 }
 
