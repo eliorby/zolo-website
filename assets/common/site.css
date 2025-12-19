@@ -278,9 +278,10 @@ html[dir="rtl"] .hero-images-mockup {
 
 .cta-row {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 8px 0 6px;
+  margin: 0 0 24px;
 }
 
 .btn {
@@ -371,7 +372,6 @@ html[dir="rtl"] .hero-images-mockup {
   width: 100%;
   height: 100%;
   display: block;
-  border-radius: 12px;
   object-fit: cover;  /* "cover" fills the tile, looks “full”, but may crop edges. "contain" doesn't crop, but may leave empty space. */
 }
 
@@ -434,6 +434,7 @@ footer {
   word-break: break-word;
 }
 
+/* 720px: “general typography / spacing / section padding” */
 /* Mobile */
 @media (max-width: 719px) {
   /* horizontal scroll, swipe carousel */
@@ -460,7 +461,7 @@ footer {
   .shot { scroll-snap-align: start; }
 }
 
-/* Desktop */
+/* Not Mobile (Tablet, Desktop), only changes spacing */
 @media (min-width: 720px) {
   header { padding: 18px 0 10px; }
   .hero { padding: 28px; }
@@ -468,14 +469,15 @@ footer {
   .legal-card { padding: 22px 20px 26px; }
 }
 
-/* Mobile */
+/* 860px: a structural change in the hero */
+/* Mobile, hero is stacked */
 @media (max-width: 859px) {
   .hero-images-background {
     display: none;  /* hide the map background behind the phone */
   }
 }
 
-/* Desktop */
+/* Desktop, hero becomes 2-column + absolute positioning of the mockup */
 @media (min-width: 860px) {
   .hero {
     padding: 32px;
