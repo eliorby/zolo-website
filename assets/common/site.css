@@ -355,8 +355,7 @@ html[dir="rtl"] .hero-images-mockup {
 .screenshots {
   display: grid;
   gap: 14px;
-
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));  /* no horizontal scroll */
 }
 
 .shot {
@@ -439,26 +438,35 @@ footer {
 @media (max-width: 719px) {
   /* horizontal scroll, swipe carousel */
   .screenshots {
-    display: grid;
-    gap: 14px;
-
+    grid-template-columns: none;  /* forces the carousel to be driven by grid-auto-columns */
     grid-auto-flow: column;
-    grid-auto-columns: 85vw;
+    grid-auto-columns: calc(100% - 36px); /* one card per view: card width ≈ viewport - left/right padding (18px+18px = 36px) */
+
     overflow-x: auto;
+    overflow-y: hidden;
 
-    padding-bottom: 6px;
-
-    scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;  /* prevents “rubber-band” from feeling like it’s stuck */
+
+    scroll-padding-inline: 18px;  /* make snap start match your padding */
+
+    /* Make the scroll area extend to the screen edges */
+    margin-inline: -18px;      /* cancel .page horizontal padding */
+    padding-inline: 18px;      /* keep first/last card aligned */
+    padding-bottom: 6px;
   }
-  /* optional: hide scrollbar without killing usability */
+  /* style scrollbar */
   .screenshots::-webkit-scrollbar { height: 8px; }
   .screenshots::-webkit-scrollbar-thumb {
     background: rgba(0,0,0,.18);
     border-radius: 999px;
   }
 
-  .shot { scroll-snap-align: start; }
+  .shot {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;  /* helps avoid half-snaps */
+  }
 }
 
 /* Not Mobile (Tablet, Desktop), only changes spacing */
