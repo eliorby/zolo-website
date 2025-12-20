@@ -459,7 +459,9 @@ footer {
     scroll-snap-type: x mandatory;
     overscroll-behavior-x: contain;  /* prevents "rubber-band" from feeling like it's stuck */
 
-    scroll-padding-inline: 18px;  /* make snap start match your padding */
+    /* snap alignment */
+    scroll-padding-inline-start: 18px;
+    scroll-padding-inline-end: 18px;
 
     /* Make the scroll area extend to the screen edges */
     margin-inline: -18px;      /* cancel .page horizontal padding */
