@@ -459,7 +459,7 @@ footer {
   /* style scrollbar */
   .screenshots::-webkit-scrollbar { height: 8px; }
   .screenshots::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.18);
+    background: rgb(var(--primary-rgb-color) / 0.18);
     border-radius: 999px;
   }
 
