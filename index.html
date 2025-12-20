@@ -4,19 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Zolo</title>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
   <link rel="canonical" href="https://zolo-deals.com/">
+  <meta property="og:url" content="https://zolo-deals.com/">
+  <link rel="alternate" href="https://zolo-deals.com/" hreflang="x-default">
   <link rel="alternate" href="https://zolo-deals.com/en/" hreflang="en">
   <link rel="alternate" href="https://zolo-deals.com/he/" hreflang="he">
-  <link rel="alternate" href="https://zolo-deals.com/" hreflang="x-default">
-  <meta name="description" content="Zolo - real-time happy hour deals in Tel Aviv. Bars, pubs, restaurants, cafés.">
+
+  <title>Zolo - Slicing Prices</title>
   <meta property="og:title" content="Zolo - Slicing Prices">
-  <meta property="og:description" content="Real-time happy hour deals in TLV. Bars, pubs, restaurants, cafés.">
-  <meta property="og:image" content="https://zolo-deals.com/assets/common/icon_zolo.png">
-  <meta property="og:url" content="https://zolo-deals.com/">
+
+  <meta name="description" content="Real-time happy hour deals in Tel Aviv. Bars, pubs, restaurants, cafés.">
+  <meta property="og:description" content="Real-time happy hour deals in Tel Aviv. Bars, pubs, restaurants, cafés.">
+
+  <meta property="og:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+
+  <meta property="og:site_name" content="Zolo">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://zolo-deals.com/assets/common/icon_zolo.png">
+
+  <!-- Fallback for no-JS: always goes to English -->
+  <meta http-equiv="refresh" content="0;url=/en/">
+
   <meta name="robots" content="noindex,follow">
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, sans-serif; }
@@ -30,21 +42,29 @@
 <body>
   <div class="card">
     <h1>Zolo</h1>
-    <p>Redirecting you to the best language experience.</p>
-    <div class="meta">If not redirected, choose: <a href="/en/">English</a> | <a href="/he/">עברית</a></div>
+    <p>Redirecting to the Zolo Website…</p>
+    <p>
+      <a href="/en/">English</a> |
+      <a href="/he/">עברית</a>
+    </p>
   </div>
-  <script>
-    (function() {
-      var path = (location.pathname || '').toLowerCase();
-      if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
-      var langs = navigator.languages || [navigator.language || 'en'];
-      var target = '/en/';
-      for (var i = 0; i < langs.length; i++) {
-        var code = (langs[i] || '').toLowerCase();
-        if (code === 'he' || code.startsWith('he-')) { target = '/he/'; break; }
-      }
-      location.replace(target);
-    })();
-  </script>
+
+<script>
+(function () {
+  var path = (location.pathname || '').toLowerCase();
+  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
+
+  var langs = navigator.languages || [navigator.language || 'en'];
+  var target = '/en/';
+
+  for (var i = 0; i < langs.length; i++) {
+    var code = (langs[i] || '').toLowerCase();
+    if (code === 'he' || code.startsWith('he-')) { target = '/he/'; break; }
+  }
+
+  location.replace(target);
+})();
+</script>
+
 </body>
 </html>

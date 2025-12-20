@@ -3,9 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Redirecting to: Zolo - Privacy Policy</title>
-  <link rel="canonical" href="https://zolo-deals.com/en/privacy/">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="canonical" href="https://zolo-deals.com/privacy/">
+  <meta property="og:url" content="https://zolo-deals.com/privacy/">
+  <link rel="alternate" href="https://zolo-deals.com/privacy/" hreflang="x-default">
+  <link rel="alternate" href="https://zolo-deals.com/en/privacy/" hreflang="en">
+  <link rel="alternate" href="https://zolo-deals.com/he/privacy/" hreflang="he">
+
+  <title>Zolo - Privacy Policy</title>
+  <meta property="og:title" content="Zolo - Privacy Policy">
+
+  <meta name="description" content="Learn how we collect, use, and protect your data.">
+  <meta property="og:description" content="Learn how we collect, use, and protect your data.">
+
+  <meta property="og:site_name" content="Zolo">
+  <meta property="og:type" content="website">
+
+  <!-- Fallback for no-JS: always goes to English -->
   <meta http-equiv="refresh" content="0;url=/en/privacy/">
+
   <meta name="robots" content="noindex,follow">
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0f0f0f; color: #fdfdfd; }
@@ -16,8 +34,28 @@
 <body>
   <div class="card">
     <p>Redirecting to the Zolo Privacy Policy…</p>
-    <p><a href="/en/privacy/">Continue</a></p>
+    <p>
+      <a href="/en/privacy/">English</a> |
+      <a href="/he/privacy/">עברית</a>
+    </p>
   </div>
-  <script>location.replace('/en/privacy/');</script>
+
+<script>
+(function () {
+  var path = (location.pathname || '').toLowerCase();
+  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
+
+  var langs = navigator.languages || [navigator.language || 'en'];
+  var target = '/en/privacy/';
+
+  for (var i = 0; i < langs.length; i++) {
+    var code = (langs[i] || '').toLowerCase();
+    if (code === 'he' || code.startsWith('he-')) { target = '/he/privacy/'; break; }
+  }
+
+  location.replace(target);
+})();
+</script>
+
 </body>
 </html>
