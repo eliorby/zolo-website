@@ -1,94 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="canonical" href="https://zolo-deals.com/terms/">
+  <meta property="og:url" content="https://zolo-deals.com/terms/">
+  <link rel="alternate" href="https://zolo-deals.com/terms/" hreflang="x-default">
+  <link rel="alternate" href="https://zolo-deals.com/en/terms/" hreflang="en">
+  <link rel="alternate" href="https://zolo-deals.com/he/terms/" hreflang="he">
+
   <title>Zolo - Terms of Service</title>
-  <link rel="canonical" href="https://zolo-deals.com/terms">
-  <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline';
-               img-src 'self' data:; object-src 'none'; base-uri 'self';
-               frame-ancestors 'none'; connect-src 'none'; form-action 'self';
-               upgrade-insecure-requests">
+  <meta property="og:title" content="Zolo - Terms of Service">
+
+  <meta name="description" content="Learn about acceptable use, limitations, and contact details.">
+  <meta property="og:description" content="Learn about acceptable use, limitations, and contact details.">
+
+  <meta property="og:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta property="og:site_name" content="Zolo">
+  <meta property="og:type" content="website">
+
+  <!-- Fallback for no-JS: always goes to English -->
+  <meta http-equiv="refresh" content="0;url=/en/terms/">
+
+  <meta name="robots" content="noindex,follow">
   <style>
-    body { font-family: sans-serif; padding: 16px; line-height: 1.5; color: #222; }
-    h1, h2 { color: #000; }
-    a { color: #1565c0; text-decoration: none; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0f0f0f; color: #fdfdfd; }
+    .card { background: #181818; padding: 20px 18px; border-radius: 12px; text-align: center; }
+    a { color: #f5a507; }
   </style>
 </head>
-
 <body>
-  <h1>Zolo - Terms of Service</h1>
-  <p>
-    <strong>Version:</strong> v1.0<br>
-    <strong>Last updated:</strong> October 2025
-  </p>
+  <div class="card">
+    <p>Redirecting to the Zolo Terms of Service…</p>
+    <p>
+      <a href="/en/terms/">English</a> |
+      <a href="/he/terms/">עברית</a>
+    </p>
+  </div>
 
-  <h2>1. About Zolo</h2>
-  <p>
-    Zolo provides information about deals and promotions at restaurants, cafés, and bars.
-    The data displayed in the app is for general informational purposes only and is provided "as is".
-  </p>
+<script>
+(function () {
+  var path = (location.pathname || '').toLowerCase();
+  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
 
-  <h2>2. Accuracy of Information</h2>
-  <p>
-    While Zolo aims to display accurate and up-to-date information,
-    deals and business details may change, expire, or become inaccurate without notice.
-    Zolo does not guarantee the accuracy, availability, or validity of any deal, listing, or venue information.
-    Users are responsible for verifying details directly with the business before making any purchase or visit.
-  </p>
+  var langs = navigator.languages || [navigator.language || 'en'];
+  var target = '/en/terms/';
 
-  <h2>3. User Responsibility</h2>
-  <p>
-    Use of the app is permitted only for lawful purposes and in compliance with these Terms of Service.
-    Users may not misuse, copy, scrape, or attempt to access data or system components in unauthorized ways.
-  </p>
+  for (var i = 0; i < langs.length; i++) {
+    var code = (langs[i] || '').toLowerCase();
+    if (code === 'he' || code.startsWith('he-')) { target = '/he/terms/'; break; }
+  }
 
-  <h2>4. Limitation of Liability</h2>
-  <p>
-    Use of the app is at the sole responsibility and risk of the user.
-    The app and its developer are not liable for any direct, indirect, incidental, or consequential losses, damages, or costs
-    resulting from the use of the app, reliance on its content, or inability to access it.
-  </p>
+  location.replace(target);
+})();
+</script>
 
-  <h2>5. Intellectual Property</h2>
-  <p>
-    All rights to the app name, logo, content, design, and software belong exclusively to the developer.
-    Users may not copy, reproduce, distribute, or modify any part of the app without prior written consent.
-  </p>
-
-  <h2>6. Privacy</h2>
-  <p>
-    Zolo respects its users' privacy. For information on how user data is collected, used, and protected, please review our
-    <a href="privacy_policy_en.html">Privacy Policy</a>.
-  </p>
-
-  <h2>7. Age Restrictions</h2>
-  <p>
-    The app is intended for adults aged 18 and above, in compliance with Israeli law.
-  </p>
-
-  <h2>8. Changes to Terms</h2>
-  <p>
-    Zolo may update these Terms of Service from time to time.
-    Any changes will take effect upon publication in the app or on our website.
-    Continued use of the app after such updates constitutes acceptance of the revised Terms of Service.
-  </p>
-
-  <h2>9. Governing Law</h2>
-  <p>
-    These Terms of Service are governed by the laws of the State of Israel.
-    Any disputes will be subject to the exclusive jurisdiction of the courts located in Tel Aviv, Israel.
-  </p>
-
-  <h2>10. Contact</h2>
-  <p>
-    For questions, concerns or issues regarding these Terms of Service,
-    please contact us at:
-    <a href="mailto:support@zolo-deals.com">support@zolo-deals.com</a>
-    <br>
-  </p>
 </body>
-
 </html>

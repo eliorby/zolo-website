@@ -1,67 +1,66 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="canonical" href="https://zolo-deals.com/en/delete/">
+  <meta property="og:url" content="https://zolo-deals.com/en/delete/">
+  <link rel="alternate" href="https://zolo-deals.com/delete/" hreflang="x-default">
+  <link rel="alternate" href="https://zolo-deals.com/en/delete/" hreflang="en">
+  <link rel="alternate" href="https://zolo-deals.com/he/delete/" hreflang="he">
+
   <title>Zolo - Account Deletion</title>
-  <link rel="canonical" href="https://zolo-deals.com/delete">
-  <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline';
-               img-src 'self' data:; object-src 'none'; base-uri 'self';
-               frame-ancestors 'none'; connect-src 'none'; form-action 'self';
-               upgrade-insecure-requests">
+  <meta property="og:title" content="Zolo - Account Deletion">
+
+  <meta name="description" content="How to delete your Zolo account and data, including grace period details.">
+  <meta property="og:description" content="How to delete your Zolo account and data, including grace period details.">
+
+  <meta property="og:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta property="og:site_name" content="Zolo">
+  <meta property="og:type" content="website">
+
+  <!-- Fallback for no-JS: always goes to English -->
+  <meta http-equiv="refresh" content="0;url=/en/delete/">
+
+  <meta name="robots" content="noindex,follow">
   <style>
-    body { font-family: sans-serif; padding: 16px; line-height: 1.5; color: #222; }
-    h1, h2 { color: #000; }
-    a { color: #1565c0; text-decoration: none; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0f0f0f; color: #fdfdfd; }
+    .card { background: #181818; padding: 20px 18px; border-radius: 12px; text-align: center; }
+    a { color: #f5a507; }
   </style>
 </head>
 
 <body>
-  <h1>Zolo - Account Deletion</h1>
-  <p>
-    <strong>How to delete:</strong>
-    Open the app → main map screen → tap the <em>Delete account</em> (trashcan icon) button → confirm.
-  </p>
-  <p>
-    <strong>Grace period:</strong> 30 days.
-    Sign in again any time within 30 days to cancel the pending deletion.
-  </p>
-  <p>
-    <strong>What we delete:</strong>
-    your account and personal data stored in the app backend.
-  </p>
-  <p>
-    <strong>What may be retained:</strong>
-    aggregated, de-identified analytics.
-  </p>
-  <p>
-    Need help?
-    <a href="mailto:support@zolo-deals.com">support@zolo-deals.com</a></p>
+  <div class="card">
+    <p>Redirecting to the Zolo Account Deletion Guide…</p>
+    <p>
+      <a href="/en/delete/">English</a> |
+      <a href="/he/delete/">עברית</a>
+    </p>
+  </div>
 
-  <hr>
+<script>
+(function () {
+  var path = (location.pathname || '').toLowerCase();
+  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
 
-  <h1 dir="rtl">זולו - מחיקת חשבון</h1>
-  <p dir="rtl">
-    <strong>איך מוחקים:</strong>
-    פותחים את האפליקציה ← מסך מפה ראשי ← מקישים על כפתור <em>מחיקת חשבון</em> (אייקון פח) ← אישור.
-  </p>
-  <p dir="rtl">
-    <strong>תקופת חסד:</strong> 30 ימים.
-    ניתן לבטל את המחיקה בכל עת בתקופה זו באמצעות כניסה מחדש לחשבון.
-  </p>
-  <p dir="rtl">
-    <strong>מה נמחק:</strong>
-    החשבון והנתונים האישיים השמורים במערכת.
-  </p>
-  <p dir="rtl">
-    <strong>מה עשוי להישמר:</strong>
-    נתוני שימוש מצרפיים ללא מזהים אישיים.
-  </p>
-  <p dir="rtl">
-    צריכים עזרה?
-    <a href="mailto:support@zolo-deals.com">support@zolo-deals.com</a>
-  </p>
+  var langs = navigator.languages || [navigator.language || 'en'];
+  var target = '/en/delete/';
+
+  for (var i = 0; i < langs.length; i++) {
+    var code = (langs[i] || '').toLowerCase();
+    if (code === 'he' || code.startsWith('he-')) { target = '/he/delete/'; break; }
+  }
+
+  location.replace(target);
+})();
+</script>
+
 </body>
 </html>

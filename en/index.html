@@ -1,0 +1,247 @@
+<!doctype html>
+<!-- For WhatsApp/link previews share https://zolo-deals.com/en/ (not root). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="canonical" href="https://zolo-deals.com/en/">
+  <meta property="og:url" content="https://zolo-deals.com/en/">
+  <link rel="alternate" href="https://zolo-deals.com/" hreflang="x-default">
+  <link rel="alternate" href="https://zolo-deals.com/en/" hreflang="en">
+  <link rel="alternate" href="https://zolo-deals.com/he/" hreflang="he">
+
+  <title>Zolo - Slicing Prices</title>
+  <meta property="og:title" content="Zolo - Slicing Prices">
+
+  <meta name="description" content="Real-time happy hour deals in Tel Aviv. Bars, pubs, restaurants, cafés.">
+  <meta property="og:description" content="Real-time happy hour deals in Tel Aviv. Bars, pubs, restaurants, cafés.">
+
+  <meta property="og:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta property="og:site_name" content="Zolo">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="/assets/common/site.css">
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <img src="/assets/common/icon_zolo.png" alt="Zolo - logo" width="36" height="36">
+        <div class="brand-text">
+          <span class="brand-name">Zolo</span>
+          <span class="brand-tagline">Slicing Prices</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <button class="theme-toggle" type="button" aria-label="Theme: system" data-theme-btn>
+          <span aria-hidden="true">🖥️</span>
+        </button>
+        <button class="lang-toggle" type="button" aria-label="Language: Hebrew" data-lang-btn>עב</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-text">
+          <h1>Real-time happy hour deals in TLV.</h1>
+          <h1>Bars, pubs, restaurants, cafés.</h1>
+          <p class="secondary-description">
+            Browse what is on right now or plan the week ahead,
+            with live filters and an interactive map.
+          </p>
+
+          <div class="cta-row">
+            <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+               aria-label="Get it on Google Play">
+              <img
+                src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_English.png"
+                alt="Zolo - Get it on Google Play"
+                style="height: 52px;">
+            </a>
+          </div>
+
+          <p>Zolo saves you time and money by showing real-time happy hour deals from bars, pubs, restaurants, and cafés in Tel Aviv.</p>
+          <p>With Zolo, you can:</p>
+          <ul class="feature-list">
+            <li class="feature-item"><span class="dot"></span><span>Browse happy hour deals on an interactive map.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>Filter venues and deals to see only what's relevant.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>See what's on right now, or plan ahead for any day of the week.</span></li>
+            <li class="feature-item"><span class="dot"></span><span>Show or hide deals that are about to start or end.</span></li>
+          </ul>
+        </div>
+
+        <div class="hero-images">
+          <div
+            class="hero-images-background"
+            data-hero-bg
+            data-light="/assets/en/map_02_en_light_cropped.png"
+            data-dark="/assets/en/map_02_en_dark_cropped.png"
+            aria-hidden="true"></div>
+
+          <img
+            class="hero-images-mockup"
+            data-theme-img
+            data-light="/assets/en/place_details_en_light_mockup.png"
+            data-dark="/assets/en/place_details_en_dark_mockup.png"
+            src="/assets/en/place_details_en_light_mockup.png"
+            alt="Zolo - App">
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="screenshots">
+          <div class="shot">
+            <img data-theme-img
+              data-light="/assets/en/map_02_en_light.png"
+              data-dark="/assets/en/map_02_en_dark.png"
+              src="/assets/en/map_02_en_light.png"
+              alt="Zolo - Map view - Zoom out">
+          </div>
+
+          <div class="shot">
+            <img data-theme-img
+              data-light="/assets/en/place_details_en_light.png"
+              data-dark="/assets/en/place_details_en_dark.png"
+              src="/assets/en/place_details_en_light.png"
+              alt="Zolo - Place details">
+          </div>
+
+          <div class="shot">
+            <img data-theme-img
+              data-light="/assets/en/map_01_en_light.png"
+              data-dark="/assets/en/map_01_en_dark.png"
+              src="/assets/en/map_01_en_light.png"
+              alt="Zolo - Map view - Zoom in">
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-links">
+        <a href="/en/terms/">Terms</a>
+        <a href="/en/privacy/">Privacy</a>
+        <a href="/en/delete/">Delete</a>
+      </div>
+
+      <div class="footer-disclaimer">
+        Deals may change or expire. Verify details with the venue.
+      </div>
+
+      <div>© Zolo</div>
+    </footer>
+  </div>
+
+<script>
+(function () {
+  const btn = document.querySelector("[data-lang-btn]");
+  if (!btn) return;
+
+  function getLangFromPath(path) {
+    const p = (path || "/").toLowerCase();
+    if (p.startsWith("/he/") || p === "/he") return "he";
+    return "en";
+  }
+
+  function targetLang(current) {
+    return current === "he" ? "en" : "he";
+  }
+
+  function setLabel(current) {
+    // show what you will switch TO
+    btn.textContent = current === "he" ? "EN" : "עב";
+  }
+
+  function buildTargetUrl(newLang) {
+    const path = location.pathname || "/";
+    // Convert /en/... <-> /he/... while keeping the rest
+    if (path === "/" || path === "/index.html") return `/${newLang}/`;
+
+    // normalize cases like /en or /he
+    const normalized = path.endsWith("/") ? path : path + "/";
+
+    if (normalized.startsWith("/en/")) return normalized.replace("/en/", `/${newLang}/`);
+    if (normalized.startsWith("/he/")) return normalized.replace("/he/", `/${newLang}/`);
+
+    // if we're on root or some legacy path, just go to language home
+    return `/${newLang}/`;
+  }
+
+  const current = getLangFromPath(location.pathname);
+  setLabel(current);
+
+  btn.addEventListener("click", () => {
+    const cur = getLangFromPath(location.pathname);
+    const next = targetLang(cur);
+    const url = buildTargetUrl(next);
+    location.href = url + location.search + location.hash;
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const STORAGE_KEY = "zolo_theme"; // system | dark | light
+  const root = document.documentElement;
+  const btn = document.querySelector("[data-theme-btn]");
+  const mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+
+  const ICON = { system: "🖥️", dark: "🌙", light: "☀️" };
+  const LABEL = { system: "Theme: system", dark: "Theme: dark", light: "Theme: light" };
+
+  function systemPrefersDark() { return !!(mq && mq.matches); }
+  function effectiveTheme(mode) {
+    if (mode === "dark") return "dark";
+    if (mode === "light") return "light";
+    return systemPrefersDark() ? "dark" : "light";
+  }
+
+  function setBtn(mode){
+    if (!btn) return;
+    btn.innerHTML = '<span aria-hidden="true">' + ICON[mode] + '</span>';
+    btn.setAttribute("aria-label", LABEL[mode]);
+    btn.title = LABEL[mode];
+  }
+
+  function apply(mode){
+    root.setAttribute("data-theme", mode);
+    setBtn(mode);
+
+    const theme = effectiveTheme(mode);
+    document.querySelectorAll("img[data-theme-img]").forEach(img => {
+      const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
+      if (next && img.src !== next) img.src = next;
+    });
+    document.querySelectorAll("[data-hero-bg]").forEach(el => {
+      const next = el.getAttribute(theme === "dark" ? "data-dark" : "data-light");
+      if (next) el.style.backgroundImage = `url("${next}")`;
+    });
+  }
+
+  function getMode(){ return localStorage.getItem(STORAGE_KEY) || "system"; }
+  function setMode(mode){ localStorage.setItem(STORAGE_KEY, mode); apply(mode); }
+  function nextMode(mode){ return mode === "system" ? "dark" : (mode === "dark" ? "light" : "system"); }
+
+  // init
+  apply(getMode());
+
+  // click cycle
+  if (btn) btn.addEventListener("click", () => setMode(nextMode(getMode())));
+
+  // OS change (only when mode=system)
+  function onSystemChange(){ if (getMode() === "system") apply("system"); }
+  if (mq && mq.addEventListener) mq.addEventListener("change", onSystemChange);
+  else if (mq && mq.addListener) mq.addListener(onSystemChange);
+})();
+</script>
+
+</body>
+</html>
+

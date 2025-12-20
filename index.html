@@ -1,29 +1,70 @@
 <!doctype html>
+<!-- Share WhatsApp previews from /en/ or /he/, not this redirect page. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Zolo</title>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
   <link rel="canonical" href="https://zolo-deals.com/">
-  <meta name="robots" content="index,follow">
-  <!-- CSP: no scripts; inline CSS allowed; images/self only -->
-  <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline';
-               img-src 'self' data:; object-src 'none'; base-uri 'self';
-               frame-ancestors 'none'; connect-src 'none'; form-action 'self';
-               upgrade-insecure-requests">
+  <meta property="og:url" content="https://zolo-deals.com/">
+  <link rel="alternate" href="https://zolo-deals.com/" hreflang="x-default">
+  <link rel="alternate" href="https://zolo-deals.com/en/" hreflang="en">
+  <link rel="alternate" href="https://zolo-deals.com/he/" hreflang="he">
+
+  <title>Zolo - Slicing Prices</title>
+  <meta property="og:title" content="Zolo - Slicing Prices">
+
+  <meta name="description" content="Real-time happy hour deals in Tel Aviv. Bars, pubs, restaurants, cafés.">
+  <meta property="og:description" content="Real-time happy hour deals in Tel Aviv. Bars, pubs, restaurants, cafés.">
+
+  <meta property="og:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta property="og:site_name" content="Zolo">
+  <meta property="og:type" content="website">
+
+  <!-- Fallback for no-JS: always goes to English -->
+  <meta http-equiv="refresh" content="0;url=/en/">
+
+  <meta name="robots" content="noindex,follow">
   <style>
-    body{margin:40px auto;max-width:720px;font:16px/1.6 system-ui,Arial,sans-serif;padding:0 16px}
-    a{display:block;margin:12px 0}
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; display: grid; place-items: center; min-height: 100vh; background: #0c0c0c; color: #f5f5f5; }
+    .card { padding: 24px 20px; border-radius: 14px; background: #181818; box-shadow: 0 20px 36px rgba(0,0,0,0.35); text-align: center; max-width: 420px; }
+    h1 { margin: 0 0 8px; font-size: 22px; letter-spacing: 0.2px; }
+    p { margin: 0 0 16px; color: #d6d6d6; }
+    .meta { font-size: 14px; color: #a0a0a0; }
   </style>
 </head>
 <body>
-  <h1>Zolo</h1>
-  <p>Official legal pages for the Zolo app.</p>
-  <nav>
-    <a href="/terms">Terms of Service</a>
-    <a href="/privacy">Privacy Policy</a>
-    <a href="/delete">Account Deletion</a>
-  </nav>
+  <div class="card">
+    <h1>Zolo</h1>
+    <p>Redirecting to the Zolo Website…</p>
+    <p>
+      <a href="/en/">English</a> |
+      <a href="/he/">עברית</a>
+    </p>
+  </div>
+
+<script>
+(function () {
+  var path = (location.pathname || '').toLowerCase();
+  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
+
+  var langs = navigator.languages || [navigator.language || 'en'];
+  var target = '/en/';
+
+  for (var i = 0; i < langs.length; i++) {
+    var code = (langs[i] || '').toLowerCase();
+    if (code === 'he' || code.startsWith('he-')) { target = '/he/'; break; }
+  }
+
+  location.replace(target);
+})();
+</script>
+
 </body>
 </html>
