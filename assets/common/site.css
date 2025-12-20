@@ -371,7 +371,7 @@ html[dir="rtl"] .hero-images-mockup {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;  /* "cover" fills the tile, looks “full”, but may crop edges. "contain" doesn't crop, but may leave empty space. */
+  object-fit: cover;  /* "cover" fills the tile, looks "full", but may crop edges. "contain" doesn't crop, but may leave empty space. */
 }
 
 footer {
@@ -433,7 +433,7 @@ footer {
   word-break: break-word;
 }
 
-/* 720px: “general typography / spacing / section padding” */
+/* 720px: "general typography / spacing / section padding" */
 /* Mobile */
 @media (max-width: 719px) {
   /* horizontal scroll, swipe carousel */
@@ -447,7 +447,7 @@ footer {
 
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
-    overscroll-behavior-x: contain;  /* prevents “rubber-band” from feeling like it’s stuck */
+    overscroll-behavior-x: contain;  /* prevents "rubber-band" from feeling like it's stuck */
 
     scroll-padding-inline: 18px;  /* make snap start match your padding */
 
