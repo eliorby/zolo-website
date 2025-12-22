@@ -28,10 +28,11 @@
   <link rel="stylesheet" href="/assets/common/site.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <div class="page legal-page">
     <header>
       <a class="brand" href="/en/" data-home-link>
-        <img src="/assets/common/icon_zolo.png" alt="Zolo logo" width="36" height="36">
+        <img src="/assets/common/icon_zolo.png" alt="Zolo - logo" width="36" height="36">
         <div class="brand-text">
           <span class="brand-name">Zolo</span>
           <span class="brand-tagline">Slicing Prices</span>
@@ -46,7 +47,7 @@
       </div>
     </header>
 
-    <main>
+    <main id="main-content">
       <article class="legal-card">
         <h1>Zolo - Terms of Service</h1>
         <p><strong>Version:</strong> v1.0<br><strong>Last updated:</strong> October 2025</p>
@@ -86,6 +87,7 @@
     <footer>
       <div class="footer-links">
         <a href="/en/privacy/">Privacy</a>
+        <a href="/en/accessibility/">Accessibility</a>
         <a href="/en/delete/">Delete</a>
       </div>
       <div>© Zolo</div>
@@ -113,12 +115,14 @@
 
     // Legacy root pages -> localized equivalents
     const legacy = {
-      "/delete/": "/{L}/delete/",
-      "/delete":  "/{L}/delete/",
       "/privacy/": "/{L}/privacy/",
       "/privacy":  "/{L}/privacy/",
       "/terms/": "/{L}/terms/",
-      "/terms":  "/{L}/terms/"
+      "/terms":  "/{L}/terms/",
+      "/accessibility/": "/{L}/accessibility/",
+      "/accessibility": "/{L}/accessibility/",
+      "/delete/": "/{L}/delete/",
+      "/delete":  "/{L}/delete/"
     };
 
     if (legacy[p]) return legacy[p].replace("{L}", nextLang);
@@ -201,4 +205,3 @@
 
 </body>
 </html>
-

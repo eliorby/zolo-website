@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="/assets/common/site.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <div class="page">
     <header>
       <div class="brand">
@@ -47,11 +48,11 @@
       </div>
     </header>
 
-    <main>
+    <main id="main-content">
       <section class="hero">
         <div class="hero-text">
           <h1>Real-time happy hour deals in TLV.</h1>
-          <h1>Bars, pubs, restaurants, cafés.</h1>
+          <h2>Bars, pubs, restaurants, cafés.</h2>
           <p class="secondary-description">
             Browse what is on right now or plan the week ahead,
             with live filters and an interactive map.
@@ -126,8 +127,9 @@
 
     <footer>
       <div class="footer-links">
-        <a href="/en/terms/">Terms</a>
         <a href="/en/privacy/">Privacy</a>
+        <a href="/en/terms/">Terms</a>
+        <a href="/en/accessibility/">Accessibility</a>
         <a href="/en/delete/">Delete</a>
       </div>
 
@@ -219,6 +221,7 @@
       const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
       if (next && img.src !== next) img.src = next;
     });
+
     document.querySelectorAll("[data-hero-bg]").forEach(el => {
       const next = el.getAttribute(theme === "dark" ? "data-dark" : "data-light");
       if (next) el.style.backgroundImage = `url("${next}")`;
@@ -244,4 +247,3 @@
 
 </body>
 </html>
-

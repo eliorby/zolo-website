@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="canonical" href="https://zolo-deals.com/en/accessibility/">
+  <meta property="og:url" content="https://zolo-deals.com/en/accessibility/">
+  <link rel="alternate" href="https://zolo-deals.com/accessibility/" hreflang="x-default">
+  <link rel="alternate" href="https://zolo-deals.com/en/accessibility/" hreflang="en">
+  <link rel="alternate" href="https://zolo-deals.com/he/accessibility/" hreflang="he">
+
+  <title>Zolo - Accessibility Statement</title>
+  <meta property="og:title" content="Zolo - Accessibility Statement">
+
+  <meta name="description" content="Accessibility statement for the Zolo website.">
+  <meta property="og:description" content="Accessibility statement for the Zolo website.">
+
+  <meta property="og:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta property="og:site_name" content="Zolo">
+  <meta property="og:type" content="website">
+
+  <!-- Fallback for no-JS: always goes to English -->
+  <meta http-equiv="refresh" content="0;url=/en/accessibility/">
+
+  <meta name="robots" content="noindex,follow">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0f0f0f; color: #fdfdfd; }
+    .card { background: #181818; padding: 20px 18px; border-radius: 12px; text-align: center; }
+    a { color: #f5a507; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <p>Redirecting to the Zolo Accessibility Statement…</p>
+    <p>
+      <a href="/en/accessibility/">English</a> |
+      <a href="/he/accessibility/">עברית</a>
+    </p>
+  </div>
+
+<script>
+(function () {
+  var path = (location.pathname || '').toLowerCase();
+  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
+
+  var langs = navigator.languages || [navigator.language || 'en'];
+  var target = '/en/accessibility/';
+
+  for (var i = 0; i < langs.length; i++) {
+    var code = (langs[i] || '').toLowerCase();
+    if (code === 'he' || code.startsWith('he-')) { target = '/he/accessibility/'; break; }
+  }
+
+  location.replace(target);
+})();
+</script>
+
+</body>
+</html>

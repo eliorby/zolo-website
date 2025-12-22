@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="/assets/common/site.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">דלג לתוכן הראשי</a>
   <div class="page">
     <header>
       <div class="brand">
@@ -47,11 +48,11 @@
       </div>
     </header>
 
-    <main>
+    <main id="main-content">
       <section class="hero">
         <div class="hero-text">
           <h1>דילים של האפי האוור בזמן אמת בתל אביב.</h1>
-          <h1>ברים, פאבים, מסעדות, בתי קפה.</h1>
+          <h2>ברים, פאבים, מסעדות, בתי קפה.</h2>
           <p class="secondary-description">
             צפו במה שקורה עכשיו או תכננו קדימה לכל יום בשבוע,
             עם מפה אינטראקטיבית וסינונים חכמים.
@@ -126,8 +127,9 @@
 
     <footer>
       <div class="footer-links">
-        <a href="/he/terms/">תנאים</a>
         <a href="/he/privacy/">פרטיות</a>
+        <a href="/he/terms/">תנאים</a>
+        <a href="/he/accessibility/">נגישות</a>
         <a href="/he/delete/">מחיקה</a>
       </div>
 
@@ -219,6 +221,7 @@
       const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
       if (next && img.src !== next) img.src = next;
     });
+
     document.querySelectorAll("[data-hero-bg]").forEach(el => {
       const next = el.getAttribute(theme === "dark" ? "data-dark" : "data-light");
       if (next) el.style.backgroundImage = `url("${next}")`;
@@ -244,4 +247,3 @@
 
 </body>
 </html>
-
