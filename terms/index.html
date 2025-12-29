@@ -25,8 +25,10 @@
   <meta property="og:site_name" content="Zolo">
   <meta property="og:type" content="website">
 
-  <!-- Fallback for no-JS: always goes to English -->
-  <meta http-equiv="refresh" content="0;url=/en/terms/">
+  <!-- no-JS Fallback: English -->
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=/en/terms/">
+  </noscript>
 
   <meta name="robots" content="noindex,follow">
   <style>
@@ -47,17 +49,32 @@
 <script>
 (function () {
   var path = (location.pathname || '').toLowerCase();
+  // If already on a localized path, do nothing
   if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
 
-  var langs = navigator.languages || [navigator.language || 'en'];
-  var target = '/en/terms/';
+  // Check localStorage for preferred language first
+  var preferredLang = null;
+  try {
+    preferredLang = localStorage.getItem('preferredLang');
+  } catch (e) {}
 
-  for (var i = 0; i < langs.length; i++) {
-    var code = (langs[i] || '').toLowerCase();
-    if (code === 'he' || code.startsWith('he-')) { target = '/he/terms/'; break; }
+  var target = '/en/terms/';
+  
+  if (preferredLang === 'he' || preferredLang === 'en') {
+    target = '/' + preferredLang + '/terms/';
+  } else {
+    // Fall back to browser language detection
+    var langs = navigator.languages || [navigator.language || 'en'];
+    for (var i = 0; i < langs.length; i++) {
+      var code = (langs[i] || '').toLowerCase();
+      if (code === 'he' || code.startsWith('he-')) { target = '/he/terms/'; break; }
+    }
   }
 
-  location.replace(target);
+  // Preserve query string and hash
+  var query = location.search || '';
+  var hash = location.hash || '';
+  location.replace(target + query + hash);
 })();
 </script>
 

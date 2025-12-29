@@ -146,44 +146,39 @@
   const btn = document.querySelector("[data-lang-btn]");
   if (!btn) return;
 
-  function getLangFromPath(path) {
-    const p = (path || "/").toLowerCase();
+  const STORAGE_KEY = "preferredLang";
+
+  function savePreferredLang(lang) {
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
+  }
+
+  function currentLang() {
+    const p = (location.pathname || "/").toLowerCase();
     if (p.startsWith("/he/") || p === "/he") return "he";
     return "en";
   }
 
-  function targetLang(current) {
-    return current === "he" ? "en" : "he";
-  }
-
-  function setLabel(current) {
-    // show what you will switch TO
+  function updateLabel(current) {
     btn.textContent = current === "he" ? "EN" : "עב";
   }
 
-  function buildTargetUrl(newLang) {
-    const path = location.pathname || "/";
-    // Convert /en/... <-> /he/... while keeping the rest
-    if (path === "/" || path === "/index.html") return `/${newLang}/`;
-
-    // normalize cases like /en or /he
-    const normalized = path.endsWith("/") ? path : path + "/";
-
-    if (normalized.startsWith("/en/")) return normalized.replace("/en/", `/${newLang}/`);
-    if (normalized.startsWith("/he/")) return normalized.replace("/he/", `/${newLang}/`);
-
-    // if we're on root or some legacy path, just go to language home
-    return `/${newLang}/`;
+  function buildTargetUrl(lang) {
+    const path = ((location.pathname || "/").toLowerCase()).replace(/\/+$/, "");  // strip trailing /
+    if (path.startsWith("/en/")) return path.replace("/en/", `/${lang}/`) + "/";
+    if (path.startsWith("/he/")) return path.replace("/he/", `/${lang}/`) + "/";
+    return `/${lang}/`;
   }
 
-  const current = getLangFromPath(location.pathname);
-  setLabel(current);
+  const current = currentLang();
+  updateLabel(current);
+  savePreferredLang(current);
 
   btn.addEventListener("click", () => {
-    const cur = getLangFromPath(location.pathname);
-    const next = targetLang(cur);
+    const cur = currentLang();
+    const next = cur === "he" ? "en" : "he";
+    savePreferredLang(next);
     const url = buildTargetUrl(next);
-    location.href = url + location.search + location.hash;
+    location.href = url + (location.search || "") + (location.hash || "");
   });
 })();
 </script>
