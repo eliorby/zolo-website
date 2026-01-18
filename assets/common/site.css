@@ -460,6 +460,15 @@ footer {
   word-break: break-word;
 }
 
+.steps{
+  margin-left: 18px;   /* moves the whole list right */
+}
+
+.steps li{
+  margin: 6px 0;       /* controls the space between the list rows */
+  padding-left: 6px;   /* controls the space between the number and the text */
+}
+
 /* 720px: "general typography / spacing / section padding" */
 /* Mobile */
 @media (max-width: 719px) {
