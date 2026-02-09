@@ -420,6 +420,36 @@ footer {
   flex-wrap: wrap;
 }
 
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-background-muted-color);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: opacity 0.2s ease;
+}
+.social-links a:hover {
+  opacity: 0.8;
+}
+.social-links a:focus-visible {
+  outline: 2px solid var(--on-background-color);
+  outline-offset: 2px;
+}
+
+.social-links img,
+.social-links svg {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
 .footer-disclaimer{
   flex-basis: 100%;
   font-size: 12px;
