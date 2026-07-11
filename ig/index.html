@@ -89,8 +89,21 @@
     }
   }
 
-  var query = '?utm_source=instagram&utm_medium=social&utm_campaign=launch&utm_content=bio';
-  location.replace(target + query);
+  var params = new URLSearchParams(location.search);
+  if (!params.has('utm_source')) {
+    params.set('utm_source', 'instagram');
+  }
+  if (!params.has('utm_medium')) {
+    params.set('utm_medium', 'social');
+  }
+  if (!params.has('utm_campaign')) {
+    params.set('utm_campaign', 'launch');
+  }
+  if (!params.has('utm_content')) {
+    params.set('utm_content', 'bio');
+  }
+
+  location.replace(target + '?' + params.toString());
 })();
 </script>
 
