@@ -180,7 +180,8 @@
       </nav>
 
       <div class="footer-disclaimer">
-        הדילים עשויים להשתנות או לפוג. יש לאמת את הפרטים ישירות מול בית העסק.
+        הדילים עשויים להשתנות או לפוג.
+        יש לאמת את הפרטים ישירות מול בית העסק.
       </div>
 
       <div>© זולו</div>
@@ -213,12 +214,12 @@
   }
 
   function buildTargetUrl(lang) {
-    const path = (location.pathname || "/").replace(/\/+$/, "");
-    if (path.startsWith("/en/") || path === "/en") {
-      return path.replace(/^\/en/, `/${lang}`) + "/";
+    const path = (location.pathname || "/").toLowerCase().replace(/\/+$/, "");
+    if (path.startsWith("/en/")) {
+      return path.replace(/^\/en/, `/${lang}/`);
     }
-    if (path.startsWith("/he/") || path === "/he") {
-      return path.replace(/^\/he/, `/${lang}`) + "/";
+    if (path.startsWith("/he/")) {
+      return path.replace(/^\/he/, `/${lang}/`);
     }
     return `/${lang}/`;
   }
