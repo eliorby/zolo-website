@@ -8,9 +8,10 @@
 
   <link rel="canonical" href="https://zolo-deals.com/tt/">
   <meta property="og:url" content="https://zolo-deals.com/tt/">
+
   <link rel="alternate" href="https://zolo-deals.com/tt/" hreflang="x-default">
-  <link rel="alternate" href="https://zolo-deals.com/en/?utm_source=tiktok&amp;utm_medium=social&amp;utm_campaign=launch&amp;utm_content=bio" hreflang="en">
-  <link rel="alternate" href="https://zolo-deals.com/he/?utm_source=tiktok&amp;utm_medium=social&amp;utm_campaign=launch&amp;utm_content=bio" hreflang="he">
+  <link rel="alternate" href="https://zolo-deals.com/en/" hreflang="en">
+  <link rel="alternate" href="https://zolo-deals.com/he/" hreflang="he">
 
   <title>Zolo - Slicing Prices</title>
   <meta property="og:title" content="Zolo - Slicing Prices">
@@ -25,12 +26,13 @@
   <meta property="og:site_name" content="Zolo">
   <meta property="og:type" content="website">
 
-  <!-- no-JS Fallback: English -->
+  <meta name="robots" content="noindex,follow">
+
+  <!-- no-JS fallback: English -->
   <noscript>
     <meta http-equiv="refresh" content="0;url=/en/?utm_source=tiktok&amp;utm_medium=social&amp;utm_campaign=launch&amp;utm_content=bio">
   </noscript>
 
-  <meta name="robots" content="noindex,follow">
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, sans-serif; }
     body { margin: 0; display: grid; place-items: center; min-height: 100vh; background: #0c0c0c; color: #f5f5f5; }
@@ -44,7 +46,7 @@
 <body>
   <div class="card">
     <h1>Zolo</h1>
-    <p>Redirecting to the Zolo Website…</p>
+    <p>Redirecting to the Zolo website…</p>
     <p>
       <a href="/en/?utm_source=tiktok&amp;utm_medium=social&amp;utm_campaign=launch&amp;utm_content=bio">English</a> |
       <a href="/he/?utm_source=tiktok&amp;utm_medium=social&amp;utm_campaign=launch&amp;utm_content=bio">עברית</a>
@@ -54,8 +56,16 @@
 <script>
 (function () {
   var path = (location.pathname || '').toLowerCase();
+
   // If already on a localized path, do nothing
-  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
+  if (
+    path.startsWith('/en/') ||
+    path === '/en' ||
+    path.startsWith('/he/') ||
+    path === '/he'
+  ) {
+    return;
+  }
 
   // Check localStorage for preferred language first
   var preferredLang = null;
@@ -72,7 +82,10 @@
     var langs = navigator.languages || [navigator.language || 'en'];
     for (var i = 0; i < langs.length; i++) {
       var code = (langs[i] || '').toLowerCase();
-      if (code === 'he' || code.startsWith('he-')) { target = '/he/'; break; }
+      if (code === 'he' || code.startsWith('he-')) {
+        target = '/he/';
+        break;
+      }
     }
   }
 
@@ -83,5 +96,3 @@
 
 </body>
 </html>
-
-

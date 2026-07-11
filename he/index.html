@@ -9,6 +9,7 @@
 
   <link rel="canonical" href="https://zolo-deals.com/he/">
   <meta property="og:url" content="https://zolo-deals.com/he/">
+
   <link rel="alternate" href="https://zolo-deals.com/" hreflang="x-default">
   <link rel="alternate" href="https://zolo-deals.com/en/" hreflang="en">
   <link rel="alternate" href="https://zolo-deals.com/he/" hreflang="he">
@@ -43,8 +44,10 @@
 
   <link rel="stylesheet" href="/assets/common/site.css">
 </head>
+
 <body>
   <a class="skip-link" href="#main-content">דלג לתוכן הראשי</a>
+
   <div class="page">
     <header>
       <div class="brand">
@@ -147,10 +150,33 @@
         <a href="/he/accessibility/">נגישות</a>
         <a href="/he/delete/">מחיקה</a>
       </div>
+
       <nav class="social-links" aria-label="Zolo social links">
-        <a href="https://www.instagram.com/zolo.deals" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on Instagram"><img src="/assets/social/logo_instagram.png" alt="" width="22" height="22"></a>
-        <a href="https://www.tiktok.com/@zolo.deals" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on TikTok"><img data-theme-img data-light="/assets/social/logo_tiktok_circle_light.png" data-dark="/assets/social/logo_tiktok_circle_dark.png" src="/assets/social/logo_tiktok_circle_light.png" alt="" width="22" height="22"></a>
-        <a href="https://www.facebook.com/getzolo" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on Facebook"><img src="/assets/social/logo_facebook.png" alt="" width="22" height="22"></a>
+        <a href="https://www.instagram.com/zolo.deals" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on Instagram">
+          <img
+            src="/assets/social/logo_instagram.png"
+            alt=""
+            width="22"
+            height="22">
+        </a>
+
+        <a href="https://www.tiktok.com/@zolo.deals" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on TikTok">
+          <img data-theme-img
+            data-light="/assets/social/logo_tiktok_circle_light.png"
+            data-dark="/assets/social/logo_tiktok_circle_dark.png"
+            src="/assets/social/logo_tiktok_circle_light.png"
+            alt=""
+            width="22"
+            height="22">
+        </a>
+
+        <a href="https://www.facebook.com/getzolo" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on Facebook">
+          <img
+            src="/assets/social/logo_facebook.png"
+            alt=""
+            width="22"
+            height="22">
+        </a>
       </nav>
 
       <div class="footer-disclaimer">
@@ -169,12 +195,16 @@
   const STORAGE_KEY = "preferredLang";
 
   function savePreferredLang(lang) {
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
+    try {
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch (e) {}
   }
 
   function currentLang() {
-    const p = (location.pathname || "/").toLowerCase();
-    if (p.startsWith("/he/") || p === "/he") return "he";
+    const path = (location.pathname || "/").toLowerCase();
+    if (path.startsWith("/he/") || path === "/he") {
+      return "he";
+    }
     return "en";
   }
 
@@ -183,20 +213,27 @@
   }
 
   function buildTargetUrl(lang) {
-    const path = ((location.pathname || "/").toLowerCase()).replace(/\/+$/, "");  // strip trailing /
-    if (path.startsWith("/en/")) return path.replace("/en/", `/${lang}/`) + "/";
-    if (path.startsWith("/he/")) return path.replace("/he/", `/${lang}/`) + "/";
+    const path = (location.pathname || "/").replace(/\/+$/, "");
+    if (path.startsWith("/en/") || path === "/en") {
+      return path.replace(/^\/en/, `/${lang}`) + "/";
+    }
+    if (path.startsWith("/he/") || path === "/he") {
+      return path.replace(/^\/he/, `/${lang}`) + "/";
+    }
     return `/${lang}/`;
   }
 
   const current = currentLang();
+
   updateLabel(current);
   savePreferredLang(current);
 
   btn.addEventListener("click", () => {
     const cur = currentLang();
     const next = cur === "he" ? "en" : "he";
+
     savePreferredLang(next);
+
     const url = buildTargetUrl(next);
     location.href = url + (location.search || "") + (location.hash || "");
   });
@@ -210,53 +247,103 @@
   const btn = document.querySelector("[data-theme-btn]");
   const mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
 
-  const ICON = { system: "🖥️", dark: "🌙", light: "☀️" };
-  const LABEL = { system: "Theme: system", dark: "Theme: dark", light: "Theme: light" };
+  const ICON = {
+    system: "🖥️",
+    dark: "🌙",
+    light: "☀️"
+  };
 
-  function systemPrefersDark() { return !!(mq && mq.matches); }
+  const LABEL = {
+    system: "Theme: system",
+    dark: "Theme: dark",
+    light: "Theme: light"
+  };
+
+  function systemPrefersDark() {
+    return !!(mq && mq.matches);
+  }
+
   function effectiveTheme(mode) {
     if (mode === "dark") return "dark";
     if (mode === "light") return "light";
     return systemPrefersDark() ? "dark" : "light";
   }
 
-  function setBtn(mode){
+  function setBtn(mode) {
     if (!btn) return;
+
     btn.innerHTML = '<span aria-hidden="true">' + ICON[mode] + '</span>';
     btn.setAttribute("aria-label", LABEL[mode]);
     btn.title = LABEL[mode];
   }
 
-  function apply(mode){
+  function apply(mode) {
     root.setAttribute("data-theme", mode);
     setBtn(mode);
 
     const theme = effectiveTheme(mode);
+
     document.querySelectorAll("img[data-theme-img]").forEach(img => {
       const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
-      if (next && img.src !== next) img.src = next;
+
+      if (next && img.getAttribute("src") !== next) {
+        img.setAttribute("src", next);
+      }
     });
 
     document.querySelectorAll("[data-hero-bg]").forEach(el => {
       const next = el.getAttribute(theme === "dark" ? "data-dark" : "data-light");
-      if (next) el.style.backgroundImage = `url("${next}")`;
+
+      if (next) {
+        el.style.backgroundImage = `url("${next}")`;
+      }
     });
   }
 
-  function getMode(){ return localStorage.getItem(STORAGE_KEY) || "system"; }
-  function setMode(mode){ localStorage.setItem(STORAGE_KEY, mode); apply(mode); }
-  function nextMode(mode){ return mode === "system" ? "dark" : (mode === "dark" ? "light" : "system"); }
+  function getMode() {
+    try {
+      return localStorage.getItem(STORAGE_KEY) || "system";
+    } catch (e) {
+      return "system";
+    }
+  }
+
+  function setMode(mode) {
+    try {
+      localStorage.setItem(STORAGE_KEY, mode);
+    } catch (e) {}
+
+    apply(mode);
+  }
+
+  function nextMode(mode) {
+    if (mode === "system") return "dark";
+    if (mode === "dark") return "light";
+    return "system";
+  }
 
   // init
   apply(getMode());
 
   // click cycle
-  if (btn) btn.addEventListener("click", () => setMode(nextMode(getMode())));
+  if (btn) {
+    btn.addEventListener("click", () => {
+      setMode(nextMode(getMode()));
+    });
+  }
 
   // OS change (only when mode=system)
-  function onSystemChange(){ if (getMode() === "system") apply("system"); }
-  if (mq && mq.addEventListener) mq.addEventListener("change", onSystemChange);
-  else if (mq && mq.addListener) mq.addListener(onSystemChange);
+  function onSystemChange() {
+    if (getMode() === "system") {
+      apply("system");
+    }
+  }
+
+  if (mq && mq.addEventListener) {
+    mq.addEventListener("change", onSystemChange);
+  } else if (mq && mq.addListener) {
+    mq.addListener(onSystemChange);
+  }
 })();
 </script>
 

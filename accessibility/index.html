@@ -8,6 +8,7 @@
 
   <link rel="canonical" href="https://zolo-deals.com/en/accessibility/">
   <meta property="og:url" content="https://zolo-deals.com/en/accessibility/">
+
   <link rel="alternate" href="https://zolo-deals.com/accessibility/" hreflang="x-default">
   <link rel="alternate" href="https://zolo-deals.com/en/accessibility/" hreflang="en">
   <link rel="alternate" href="https://zolo-deals.com/he/accessibility/" hreflang="he">
@@ -25,12 +26,13 @@
   <meta property="og:site_name" content="Zolo">
   <meta property="og:type" content="website">
 
-  <!-- no-JS Fallback: English -->
+  <meta name="robots" content="noindex,follow">
+
+  <!-- no-JS fallback: English -->
   <noscript>
     <meta http-equiv="refresh" content="0;url=/en/accessibility/">
   </noscript>
 
-  <meta name="robots" content="noindex,follow">
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0f0f0f; color: #fdfdfd; }
     .card { background: #181818; padding: 20px 18px; border-radius: 12px; text-align: center; }
@@ -50,17 +52,24 @@
 <script>
 (function () {
   var path = (location.pathname || '').toLowerCase();
+
   // If already on a localized path, do nothing
-  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
+  if (
+    path.startsWith('/en/') || path === '/en' ||
+    path.startsWith('/he/') || path === '/he'
+  ) {
+    return;
+  }
 
   // Check localStorage for preferred language first
   var preferredLang = null;
+
   try {
     preferredLang = localStorage.getItem('preferredLang');
   } catch (e) {}
 
   var target = '/en/accessibility/';
-  
+
   if (preferredLang === 'he' || preferredLang === 'en') {
     target = '/' + preferredLang + '/accessibility/';
   } else {
@@ -68,7 +77,10 @@
     var langs = navigator.languages || [navigator.language || 'en'];
     for (var i = 0; i < langs.length; i++) {
       var code = (langs[i] || '').toLowerCase();
-      if (code === 'he' || code.startsWith('he-')) { target = '/he/accessibility/'; break; }
+      if (code === 'he' || code.startsWith('he-')) {
+        target = '/he/accessibility/';
+        break;
+      }
     }
   }
 

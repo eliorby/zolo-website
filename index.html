@@ -9,6 +9,7 @@
 
   <link rel="canonical" href="https://zolo-deals.com/">
   <meta property="og:url" content="https://zolo-deals.com/">
+
   <link rel="alternate" href="https://zolo-deals.com/" hreflang="x-default">
   <link rel="alternate" href="https://zolo-deals.com/en/" hreflang="en">
   <link rel="alternate" href="https://zolo-deals.com/he/" hreflang="he">
@@ -26,12 +27,13 @@
   <meta property="og:site_name" content="Zolo">
   <meta property="og:type" content="website">
 
-  <!-- no-JS Fallback: English -->
+  <meta name="robots" content="noindex,follow">
+
+  <!-- no-JS fallback: English -->
   <noscript>
     <meta http-equiv="refresh" content="0;url=/en/">
   </noscript>
 
-  <meta name="robots" content="noindex,follow">
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, sans-serif; }
     body { margin: 0; display: grid; place-items: center; min-height: 100vh; background: #0c0c0c; color: #f5f5f5; }
@@ -41,10 +43,11 @@
     .meta { font-size: 14px; color: #a0a0a0; }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>Zolo</h1>
-    <p>Redirecting to the Zolo Website…</p>
+    <p>Redirecting to the Zolo website…</p>
     <p>
       <a href="/en/">English</a> |
       <a href="/he/">עברית</a>
@@ -54,8 +57,16 @@
 <script>
 (function () {
   var path = (location.pathname || '').toLowerCase();
+
   // If already on a localized path, do nothing
-  if (path.startsWith('/en/') || path === '/en' || path.startsWith('/he/') || path === '/he') return;
+  if (
+    path.startsWith('/en/') ||
+    path === '/en' ||
+    path.startsWith('/he/') ||
+    path === '/he'
+  ) {
+    return;
+  }
 
   // Check localStorage for preferred language first
   var preferredLang = null;
@@ -64,7 +75,7 @@
   } catch (e) {}
 
   var target = '/en/';
-  
+
   if (preferredLang === 'he' || preferredLang === 'en') {
     target = '/' + preferredLang + '/';
   } else {
@@ -72,7 +83,10 @@
     var langs = navigator.languages || [navigator.language || 'en'];
     for (var i = 0; i < langs.length; i++) {
       var code = (langs[i] || '').toLowerCase();
-      if (code === 'he' || code.startsWith('he-')) { target = '/he/'; break; }
+      if (code === 'he' || code.startsWith('he-')) {
+        target = '/he/';
+        break;
+      }
     }
   }
 
