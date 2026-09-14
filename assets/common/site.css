@@ -245,7 +245,7 @@ html[dir="rtl"] .hero {
 
 /* <picture> is only used for light/dark source selection; keep the <img> as the layout box */
 .hero-images picture,
-.shot picture {
+.shot-frame picture {
   display: contents;
 }
 
@@ -440,11 +440,27 @@ html[dir="rtl"] .hero-images-mockup {
 
 .shot {
   display: grid;
+  gap: 10px;
+  margin: 0;
+  align-content: start;
+}
+
+.shot-frame {
+  display: grid;
   border: 1px solid var(--on-surface-border-color);
   border-radius: var(--radius-sm);
   box-shadow: 0 12px 22px rgba(0,0,0,0.08);
   aspect-ratio: 6 / 13;   /* screenshot images are 1080x2340 */
   overflow: hidden;       /* needed for object-fit: cover */
+}
+
+.shot figcaption {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--on-background-muted-color);
+  padding: 0 4px;
 }
 
 .shot img {
