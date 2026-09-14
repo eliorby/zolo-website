@@ -1,0 +1,15 @@
+name: site-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest   # ships with python3 and google-chrome
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Quality gate (static + headless Chrome)
+        run: python3 tests/check_site.py
