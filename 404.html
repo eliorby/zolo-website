@@ -7,6 +7,8 @@
   <script>(function(){try{var t=localStorage.getItem("zolo_theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();</script>
 
   <link rel="icon" href="/favicon.ico" sizes="any">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 
   <title>Page not found - Zolo</title>
   <meta name="description" content="The page you were looking for does not exist. Find real-time happy hour deals in Tel Aviv with Zolo.">
@@ -26,7 +28,8 @@
       letter-spacing: 0.18em;
       color: var(--primary-color);
     }
-    .not-found h1 {
+    .not-found h1,
+    .not-found h2 {
       margin: 0 0 10px;
       font-size: clamp(28px, 6vw, 38px);
       letter-spacing: -0.4px;
@@ -87,7 +90,7 @@
         <div class="divider" aria-hidden="true"></div>
 
         <div lang="he">
-          <h1>הדף לא נמצא</h1>
+          <h2>הדף לא נמצא</h2>
           <p>הדף שחיפשתם לא קיים או שהועבר. ההאפי האוור, לעומת זאת, עדיין בעיצומו.</p>
           <div class="actions">
             <a class="btn primary" href="/he/">לדף הבית של זולו</a>
@@ -101,7 +104,7 @@
         <a href="/en/privacy/">Privacy</a>
         <a href="/en/terms/">Terms</a>
         <a href="/en/accessibility/">Accessibility</a>
-        <a href="/en/delete/">Delete</a>
+        <a href="/en/delete/">Delete account</a>
       </div>
       <div>© Zolo</div>
     </footer>
