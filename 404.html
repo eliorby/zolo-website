@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Apply a saved manual theme before first paint (avoids a light/dark flash) -->
+  <script>(function(){try{var t=localStorage.getItem("zolo_theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();</script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <title>Page not found - Zolo</title>
+  <meta name="description" content="The page you were looking for does not exist. Find real-time happy hour deals in Tel Aviv with Zolo.">
+  <meta name="robots" content="noindex,follow">
+
+  <link rel="stylesheet" href="/assets/common/site.css">
+  <style>
+    .not-found {
+      text-align: center;
+      padding: 40px 18px 44px;
+    }
+    .not-found .code {
+      display: block;
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--primary-color);
+    }
+    .not-found h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 6vw, 38px);
+      letter-spacing: -0.4px;
+    }
+    .not-found p {
+      margin: 0 auto 22px;
+      max-width: 34em;
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--on-background-muted-color);
+    }
+    .not-found .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .not-found [lang="he"] {
+      direction: rtl;
+    }
+    .not-found .divider {
+      margin: 30px auto;
+      width: 64px;
+      height: 1px;
+      background: var(--on-background-border-color);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <a class="brand" href="/" data-home-link>
+        <img src="/assets/common/icon_zolo_96.webp" alt="Zolo - logo" width="36" height="36">
+        <div class="brand-text">
+          <span class="brand-name">Zolo</span>
+          <span class="brand-tagline">Slicing Prices</span>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <button class="theme-toggle" type="button" aria-label="Theme: system" data-theme-btn>
+          <span aria-hidden="true">🖥️</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="section not-found">
+        <span class="code" aria-hidden="true">404</span>
+        <h1>Page not found</h1>
+        <p>The page you were looking for doesn't exist or has moved. Happy hour, however, is still on.</p>
+        <div class="actions">
+          <a class="btn primary" href="/en/">Go to the Zolo home page</a>
+          <a class="btn secondary" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-cta="404">Get Zolo on Google Play</a>
+        </div>
+
+        <div class="divider" aria-hidden="true"></div>
+
+        <div lang="he">
+          <h1>הדף לא נמצא</h1>
+          <p>הדף שחיפשתם לא קיים או שהועבר. ההאפי האוור, לעומת זאת, עדיין בעיצומו.</p>
+          <div class="actions">
+            <a class="btn primary" href="/he/">לדף הבית של זולו</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-links">
+        <a href="/en/privacy/">Privacy</a>
+        <a href="/en/terms/">Terms</a>
+        <a href="/en/accessibility/">Accessibility</a>
+        <a href="/en/delete/">Delete</a>
+      </div>
+      <div>© Zolo</div>
+    </footer>
+  </div>
+
+<script src="/assets/common/site.js" defer></script>
+</body>
+</html>
