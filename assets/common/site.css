@@ -337,6 +337,15 @@ html[dir="rtl"] .hero-images-mockup {
   opacity: 0.92;
 }
 
+.cta-note {
+  margin: -14px 0 24px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--on-background-muted-color);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -618,6 +627,9 @@ footer {
 
   .hero-lead .cta-row {
     justify-content: flex-start;
+  }
+  .hero-lead .cta-note {
+    text-align: start;
   }
 
   .hero-images {
