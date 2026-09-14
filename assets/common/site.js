@@ -22,10 +22,11 @@
     }
 
     function buildTargetUrl(lang) {
-      var path = (location.pathname || "/").toLowerCase().replace(/\/+$/, "");
-      if (path.indexOf("/en/") === 0) return path.replace(/^\/en/, "/" + lang + "/");
-      if (path.indexOf("/he/") === 0) return path.replace(/^\/he/, "/" + lang + "/");
-      return "/" + lang + "/";
+      // "/en/privacy/" -> "/he/privacy/", "/en" -> "/he/", anything else -> "/<lang>/"
+      var m = (location.pathname || "/").toLowerCase().match(/^\/(en|he)(\/.*)?$/);
+      var rest = (m && m[2]) || "/";
+      if (rest.charAt(rest.length - 1) !== "/") rest += "/";
+      return "/" + lang + rest;
     }
 
     var current = currentLang();
