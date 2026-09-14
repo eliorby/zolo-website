@@ -21,13 +21,16 @@ import argparse
 import json
 import os
 import re
+import select
 import shutil
 import subprocess
 import sys
 import tempfile
 import threading
+import time
+import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import date
+from datetime import date, timedelta
 from html.parser import HTMLParser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -44,7 +47,17 @@ MAX_IMAGE_FILE_KB = 250           # any single referenced raster image
 MAX_SMALL_ICON_KB = 40            # images displayed at <= 64px (header logo, social icons)
 SMALL_ICON_MAX_DISPLAY_PX = 64
 
-WIDTHS = (320, 390, 768, 1280)
+STORE_URLS = {"google_play": PLAY_URL}          # add "app_store": "https://apps.apple.com/..." when it exists
+STORE_HOSTS = {"google_play": "play.google.com", "app_store": "apps.apple.com"}
+
+WIDTHS = (320, 390, 768, 1280)                   # conversion-critical pages (landing, 404)
+WIDTHS_SECONDARY = (320, 1280)                   # legal pages
+
+# ---- Timeouts (seconds) ----
+CDP_TIMEOUT = 20          # one DevTools command round trip
+LOAD_TIMEOUT = 15         # page load event
+REDIRECT_TIMEOUT = 3      # script redirect on the helper pages (it is synchronous in practice)
+BROWSER_DEADLINE = 300    # whole browser phase; a hang fails instead of stalling CI
 
 
 # --------------------------------------------------------------------------- page table
@@ -136,8 +149,12 @@ class Doc(HTMLParser):
                 return
 
     def handle_data(self, data):
+        # text inside aria-hidden subtrees does not contribute to accessible names
+        hidden = False
         for el in self.stack:
-            el["text"] += data
+            hidden = hidden or el["attrs"].get("aria-hidden") == "true"
+            if not hidden:
+                el["text"] += data
 
     def find(self, tag, **attrs):
         out = []
@@ -295,9 +312,6 @@ def check_page_links_and_assets(r, page, doc, text):
         src = a.get("src", "?")
         r.check("alt" in a, "%s: <img %s> has an alt attribute" % (p, src))
         r.check(bool(a.get("width") and a.get("height")), "%s: <img %s> has width and height" % (p, src))
-        if "hero-images-mockup" in a.get("class", ""):
-            r.check(a.get("loading") != "lazy" and a.get("fetchpriority") == "high",
-                    "%s: hero mockup (LCP candidate) is eager with fetchpriority=high" % p)
         try:
             w = int(a.get("width", "0"))
         except ValueError:
@@ -306,6 +320,16 @@ def check_page_links_and_assets(r, page, doc, text):
         if f and f.is_file() and 0 < w <= SMALL_ICON_MAX_DISPLAY_PX:
             kb = f.stat().st_size // 1024
             r.check(kb <= MAX_SMALL_ICON_KB, "%s: small icon %s is %d KB (limit %d KB)" % (p, src, kb, MAX_SMALL_ICON_KB))
+
+    if page.get("landing"):
+        imgs = doc.find("img")
+        lcp = [i for i in imgs if i["attrs"].get("fetchpriority") == "high"]
+        r.check(len(lcp) == 1 and lcp[0]["attrs"].get("loading") != "lazy",
+                "%s: exactly one eager fetchpriority=high image (the LCP hero mockup), got %d" % (p, len(lcp)))
+        lazy = [i for i in imgs if i["attrs"].get("loading") == "lazy"]
+        r.check(len(lazy) >= 3, "%s: below-the-fold screenshots are lazy-loaded (got %d lazy images)" % (p, len(lazy)))
+        r.check(len([el for el in doc.find("picture") if "data-theme-pic" in el["attrs"]]) >= 4,
+                "%s: light/dark <picture> pairs present for mockup and screenshots" % p)
 
     # external links opening a new tab
     for a_el in doc.find("a"):
@@ -316,7 +340,8 @@ def check_page_links_and_assets(r, page, doc, text):
             r.check("noopener" in a.get("rel", ""), "%s: target=_blank link %s has rel=noopener" % (p, href))
 
     # skip link target
-    skip = doc.first("a", **{"class": "skip-link"})
+    skip = next((el for el in doc.find("a") if "skip-link" in el["attrs"].get("class", "").split()), None)
+    r.check(bool(skip) or page.get("redirect"), "%s: has a skip link" % p)
     if skip:
         target = skip["attrs"]["href"].lstrip("#")
         r.check(any(el["attrs"].get("id") == target for el in doc.elements), "%s: skip link target #%s exists" % (p, target))
@@ -342,13 +367,15 @@ def check_page_a11y(r, page, doc):
 def check_ctas(r, page, doc):
     p = page["path"]
     ctas = doc.find("a", **{"data-cta": None})
-    placements = sorted(c["attrs"]["data-cta"] for c in ctas)
+    placements = {c["attrs"]["data-cta"] for c in ctas}
     if page.get("landing"):
-        r.check(placements == ["bottom", "hero"], "%s: install CTAs at hero and bottom (got %s)" % (p, placements))
+        r.check({"hero", "bottom"} <= placements, "%s: install CTAs at hero and bottom (got %s)" % (p, sorted(placements)))
     elif page.get("not_found"):
-        r.check(placements == ["404"], "%s: install CTA on 404 page" % p)
+        r.check(placements == {"404"}, "%s: install CTA on 404 page" % p)
+    else:
+        r.check(not placements, "%s: no install CTAs expected (got %s)" % (p, sorted(placements)))
     for c in ctas:
-        r.check(c["attrs"].get("href") == PLAY_URL, "%s: CTA %s points to the Play listing" % (p, c["attrs"]["data-cta"]))
+        r.check(c["attrs"].get("href") in STORE_URLS.values(), "%s: CTA %s points to a known store listing (%s)" % (p, c["attrs"]["data-cta"], c["attrs"].get("href")))
         r.check(accessible_name(c, doc), "%s: CTA %s has an accessible name" % (p, c["attrs"]["data-cta"]))
 
 
@@ -375,7 +402,7 @@ def check_json_ld(r, page, doc):
     r.check(app.get("url") == SITE + p, "%s: MobileApplication.url is this page" % p)
     offers = app.get("offers") or {}
     r.check(str(offers.get("price")) == "0" and bool(offers.get("priceCurrency")), "%s: offer is free with a currency" % p)
-    r.check(app.get("operatingSystem") == "Android", "%s: operatingSystem Android (only a Play Store link is offered)" % p)
+    r.check("Android" in str(app.get("operatingSystem")), "%s: operatingSystem includes Android" % p)
     org = next((n for n in nodes if n.get("@type") == "Organization"), {})
     logo = local_file(org.get("logo", ""))
     r.check(bool(logo and logo.is_file()), "%s: Organization.logo exists" % p)
@@ -421,7 +448,7 @@ def check_sitemap_and_robots(r):
     expected = {SITE + p["path"] for p in ALL_PAGES if p["indexable"]}
     r.check(locs == expected, "sitemap lists exactly the indexable pages (missing %s, extra %s)"
             % (sorted(expected - locs), sorted(locs - expected)))
-    today = date.today()
+    today = date.today() + timedelta(days=1)   # tolerate time-zone differences between author and CI
     for u in tree.getroot().findall("s:url", ns):
         loc = u.findtext("s:loc", namespaces=ns)
         lastmod = u.findtext("s:lastmod", namespaces=ns) or ""
@@ -498,7 +525,6 @@ def static_checks(r):
 # --------------------------------------------------------------------------- browser checks
 # Headless Chrome is driven over the DevTools protocol through --remote-debugging-pipe
 # (JSON messages on fds 3/4, NUL-terminated), so no third-party client is required.
-import select
 
 PAGE_INFO_JS = r"""(() => {
   const q = s => document.querySelector(s);
@@ -566,10 +592,16 @@ class Chrome:
         r_in, w_in = os.pipe()    # Chrome reads commands on fd 3
         r_out, w_out = os.pipe()  # Chrome writes responses on fd 4
         cmd = [binary, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
+               "--disable-extensions", "--disable-background-networking", "--disable-component-update",
                "--user-data-dir=" + profile, "--remote-debugging-pipe",
                "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1",   # offline: nothing reaches GA
                "about:blank"]
+        if sys.platform.startswith("linux"):
+            cmd.insert(1, "--disable-dev-shm-usage")
+        if os.environ.get("CI") or (hasattr(os, "geteuid") and os.geteuid() == 0):
+            cmd.insert(1, "--no-sandbox")   # CI containers/root cannot use Chrome's user-namespace sandbox
         self.stderr = tempfile.TemporaryFile()
+        self.deadline = time.monotonic() + BROWSER_DEADLINE
         # close_fds=False keeps the dup2'd fds 3/4 alive in the child (Python would otherwise close them
         # after preexec_fn); the child inherits a few harmless extra descriptors.
         self.proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=self.stderr,
@@ -585,8 +617,12 @@ class Chrome:
 
     def _read_message(self, timeout):
         while b"\0" not in self.buf:
+            if time.monotonic() > self.deadline:
+                raise TimeoutError("browser phase exceeded %ss" % BROWSER_DEADLINE)
             ready, _, _ = select.select([self.rd], [], [], timeout)
             if not ready:
+                if self.proc.poll() is not None:
+                    raise RuntimeError("Chrome exited with status %s" % self.proc.returncode)
                 raise TimeoutError("no DevTools message within %ss" % timeout)
             chunk = os.read(self.rd, 65536)
             if not chunk:
@@ -595,7 +631,7 @@ class Chrome:
         raw, self.buf = self.buf.split(b"\0", 1)
         return json.loads(raw.decode("utf-8"))
 
-    def send(self, method, params=None, session=True, timeout=20):
+    def send(self, method, params=None, session=True, timeout=CDP_TIMEOUT):
         self.next_id += 1
         msg = {"id": self.next_id, "method": method, "params": params or {}}
         if session and self.session:
@@ -610,12 +646,16 @@ class Chrome:
             if "method" in m:
                 self.events.append(m)
 
-    def wait_event(self, name, timeout=10):
+    def wait_event(self, name, timeout=LOAD_TIMEOUT):
         for i, m in enumerate(self.events):
             if m["method"] == name:
                 return self.events.pop(i)
+        end = time.monotonic() + timeout
         while True:
-            m = self._read_message(timeout)
+            remaining = end - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError("no %s within %ss" % (name, timeout))
+            m = self._read_message(remaining)
             if m.get("method") == name:
                 return m
             if "method" in m:
@@ -646,6 +686,23 @@ class Chrome:
         self.send("Page.navigate", {"url": url})
         self.wait_event("Page.loadEventFired")
 
+    def wait_for_location_change(self, initial_path):
+        """Helper pages redirect with location.replace() from an inline script; poll the URL."""
+        end = time.monotonic() + REDIRECT_TIMEOUT
+        while time.monotonic() < end:
+            loc = self.evaluate("location.pathname + location.search")
+            if loc.split("?")[0] != initial_path:
+                return loc
+            time.sleep(0.05)
+        return self.evaluate("location.pathname + location.search")
+
+    def press_tab(self):
+        for t in ("keyDown", "keyUp"):
+            self.send("Input.dispatchKeyEvent", {"type": t, "key": "Tab", "code": "Tab", "windowsVirtualKeyCode": 9})
+
+    def set_javascript(self, enabled):
+        self.send("Emulation.setScriptExecutionDisabled", {"value": not enabled})
+
     def close(self):
         try:
             self.send("Browser.close", session=False, timeout=5)
@@ -655,10 +712,17 @@ class Chrome:
             self.proc.wait(timeout=10)
         except Exception:
             self.proc.kill()
+            self.proc.wait()
+        for fd in (self.w, self.rd):
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        self.stderr.close()
 
 
 def find_chrome():
-    candidates = [os.environ.get("CHROME"),
+    candidates = [os.environ.get("CHROME"), os.environ.get("CHROME_BIN"), os.environ.get("CHROME_PATH"),
                   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
                   "/Applications/Chromium.app/Contents/MacOS/Chromium"]
     candidates += [shutil.which(n) for n in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome")]
@@ -669,8 +733,11 @@ def find_chrome():
 
 
 def runtime_problems(events, origin):
-    """Uncaught exceptions, console errors and failed same-origin requests from drained CDP events."""
+    """Uncaught exceptions, console errors, failed same-origin requests, and any external request
+    that actually reached the network (the resolver rule is supposed to make that impossible)."""
     problems = []
+    urls = {m["params"]["requestId"]: m["params"]["request"]["url"]
+            for m in events if m["method"] == "Network.requestWillBeSent"}
     for m in events:
         p = m.get("params", {})
         if m["method"] == "Runtime.exceptionThrown":
@@ -684,10 +751,16 @@ def runtime_problems(events, origin):
             problems.append("console.error: " + " ".join(str(a.get("value", a.get("description", ""))) for a in p.get("args", []))[:200])
         elif m["method"] == "Network.responseReceived":
             resp = p.get("response", {})
-            if resp.get("url", "").startswith(origin) and resp.get("status", 200) >= 400:
-                problems.append("request %s -> %s" % (resp["url"].replace(origin, ""), resp["status"]))
-        elif m["method"] == "Network.loadingFailed" and origin in json.dumps(p):
-            problems.append("request failed: " + p.get("errorText", ""))
+            url = resp.get("url", "")
+            if url.startswith(origin):
+                if resp.get("status", 200) >= 400:
+                    problems.append("request %s -> %s" % (url.replace(origin, ""), resp["status"]))
+            elif url.startswith("http") and not resp.get("fromDiskCache"):
+                problems.append("external request reached the network (isolation broken): " + url[:120])
+        elif m["method"] == "Network.loadingFailed":
+            url = urls.get(p.get("requestId"), "")
+            if url.startswith(origin) and not p.get("canceled"):
+                problems.append("request %s failed: %s" % (url.replace(origin, ""), p.get("errorText", "")))
     return problems
 
 
@@ -709,34 +782,34 @@ def browser_checks(r):
         def handle_error(self, request, client_address):
             pass  # Chrome drops connections mid-response when it navigates; not a site problem
 
-    server = QuietServer(("127.0.0.1", 0), Handler)
-    origin = "http://127.0.0.1:%d" % server.server_address[1]
-    threading.Thread(target=server.serve_forever, daemon=True).start()
+    # Python 3.9's mimetypes lacks a few types; Chrome sniffs images but keep it explicit.
+    Handler.extensions_map.update({".webp": "image/webp", ".svg": "image/svg+xml", ".js": "text/javascript",
+                                   ".css": "text/css", ".xml": "application/xml", ".txt": "text/plain"})
+
     profile = tempfile.mkdtemp(prefix="zolo-site-check-")
     browser = None
+    server = None
     try:
+        # Launch Chrome before the server thread exists (preexec_fn forks a single-threaded process).
         browser = Chrome(chrome, profile)
+        server = QuietServer(("127.0.0.1", 0), Handler)
+        origin = "http://127.0.0.1:%d" % server.server_address[1]
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        with urllib.request.urlopen(origin + "/robots.txt", timeout=5) as resp:   # proves serve_forever is running
+            r.check(resp.status == 200, "local server serves the repository")
         browser.open_page()
         pages = [p for p in ALL_PAGES if not p.get("not_found")] + [NOT_FOUND_PAGE]
+        current = "(startup)"
         for page in pages:
-            p = page["path"]
+            p = current = page["path"]
             browser.set_width(390)
             browser.navigate(origin + p)
             if page.get("redirect"):
-                # the page's script redirects with location.replace; wait for that second load
-                try:
-                    browser.wait_event("Page.loadEventFired", timeout=5)
-                except TimeoutError:
-                    pass
-                final = browser.evaluate("location.pathname + location.search")
+                final = browser.wait_for_location_change(p)
                 r.check(final.startswith(("/en/", "/he/")), "%s: redirects to a localized page (got %r)" % (p, final))
                 if p == "/":
                     browser.navigate(origin + "/?utm_source=check&x=1")
-                    try:
-                        browser.wait_event("Page.loadEventFired", timeout=5)
-                    except TimeoutError:
-                        pass
-                    final = browser.evaluate("location.pathname + location.search")
+                    final = browser.wait_for_location_change(p)
                     r.check("utm_source=check" in final and final.startswith(("/en/", "/he/")), "/: redirect preserves the query string (got %r)" % final)
                 r.check(not runtime_problems(browser.drain(), origin), "%s: no runtime problems during redirect" % p)
                 continue
@@ -746,14 +819,16 @@ def browser_checks(r):
             info = browser.evaluate(PAGE_INFO_JS)
             r.check(not info["brokenImages"], "%s: no broken images %s" % (p, info["brokenImages"]))
             r.check(info["lang"] == page["lang"], "%s: runtime lang %s" % (p, page["lang"]))
+            localized = "counterpart" in page
             if page["lang"] == "he":
                 r.check(info["dir"] == "rtl", "%s: runtime dir=rtl" % p)
-                r.check(info["langBtnText"] in (None, "EN"), "%s: language toggle shows EN" % p)
-                r.check(info["themeLabel"] is None or is_hebrew(info["themeLabel"]), "%s: theme label localized at runtime (%r)" % (p, info["themeLabel"]))
-            elif info["langBtnText"] is not None:
-                r.check(info["langBtnText"] == "עב", "%s: language toggle shows עב" % p)
+                r.check(info["langBtnText"] == "EN", "%s: language toggle shows EN (got %r)" % (p, info["langBtnText"]))
+                r.check(bool(info["themeLabel"]) and is_hebrew(info["themeLabel"]), "%s: theme label localized at runtime (%r)" % (p, info["themeLabel"]))
+            elif localized:
+                r.check(info["langBtnText"] == "עב", "%s: language toggle shows עב (got %r)" % (p, info["langBtnText"]))
+            r.check(bool(info["themeLabel"]), "%s: theme control present with a label" % p)
 
-            for w in WIDTHS:
+            for w in (WIDTHS if page.get("landing") or page.get("not_found") else WIDTHS_SECONDARY):
                 browser.set_width(w)
                 o = browser.evaluate(OVERFLOW_JS)
                 r.check(o["scrollWidth"] <= o["clientWidth"] and not o["offenders"],
@@ -772,19 +847,23 @@ def browser_checks(r):
                     params = payload[2] if len(payload) > 2 else {}
                     r.check(c["fired"] == 1, "%s: CTA %s click emits exactly one event (got %d)" % (p, c["placement"], c["fired"]))
                     r.check(payload[:2] == ["event", "install_click"], "%s: CTA %s event is install_click" % (p, c["placement"]))
-                    r.check(params.get("store") == "google_play" and params.get("placement") == c["placement"] and params.get("language") == page["lang"],
+                    href = next((x["href"] for x in info["ctas"] if x["placement"] == c["placement"]), "")
+                    store = next((k for k, host in STORE_HOSTS.items() if host in href), "other")
+                    r.check(params.get("store") == store and params.get("placement") == c["placement"] and params.get("language") == page["lang"],
                             "%s: CTA %s payload store/placement/language (%s)" % (p, c["placement"], params))
                     r.check(params.get("transport_type") == "beacon", "%s: CTA %s event uses beacon transport (survives navigation)" % (p, c["placement"]))
                 r.check(clicks["noGtag"] == {"fired": 0}, "%s: CTA click without gtag stays silent" % p)
                 r.check(browser.evaluate("location.pathname") == p, "%s: CTA test did not navigate away" % p)
 
             theme = browser.evaluate(THEME_JS)
+            r.check(bool(theme), "%s: theme toggle exists and cycles" % p)
             if theme:
                 modes = [t["mode"] for t in theme]
                 r.check(modes == ["dark", "light", "system"], "%s: theme cycles dark/light/system (got %s)" % (p, modes))
                 medias = [t["media"] for t in theme]
-                r.check(medias[0] in ([], ["all"]) and medias[1] in ([], ["not all"]) and medias[2] in ([], ["(prefers-color-scheme: dark)"]),
-                        "%s: picture sources follow the theme (%s)" % (p, medias))
+                if localized:   # every localized page has at least the themed TikTok icon
+                    r.check(medias[0] == ["all"] and medias[1] == ["not all"] and medias[2] == ["(prefers-color-scheme: dark)"],
+                            "%s: picture sources follow the theme (%s)" % (p, medias))
                 colors = [t["themeColor"] for t in theme]
                 r.check(colors[0] in ([], ["#000000", "#000000"]) and colors[1] in ([], ["#FFFFFF", "#FFFFFF"]),
                         "%s: theme-color follows a forced theme (%s)" % (p, colors[:2]))
@@ -795,12 +874,33 @@ def browser_checks(r):
             if "counterpart" in page:
                 browser.events = [m for m in browser.events if m["method"] != "Page.loadEventFired"]
                 browser.evaluate("document.querySelector('[data-lang-btn]').click(); 0")
-                browser.wait_event("Page.loadEventFired", timeout=10)
+                browser.wait_event("Page.loadEventFired")
                 landed = browser.evaluate("location.pathname")
                 r.check(landed == page["counterpart"], "%s: language toggle navigates to %s (got %s)" % (p, page["counterpart"], landed))
                 r.check(not runtime_problems(browser.drain(), origin), "%s: counterpart page loads cleanly" % page["counterpart"])
+            if page.get("landing"):
+                # Keyboard: Tab from the top must reach theme control, language toggle and hero CTA, in that order.
+                browser.navigate(origin + p)   # fresh document, focus at the start
+                order = []
+                for _ in range(8):
+                    browser.press_tab()
+                    order.append(browser.evaluate("(a => a ? (a.dataset.cta ? 'cta:' + a.dataset.cta : a.hasAttribute('data-theme-btn') ? 'theme' : a.hasAttribute('data-lang-btn') ? 'lang' : a.className || a.tagName.toLowerCase()) : null)(document.activeElement)"))
+                wanted = ["theme", "lang", "cta:hero"]
+                idx = [order.index(x) if x in order else -1 for x in wanted]
+                r.check(all(i >= 0 for i in idx) and idx == sorted(idx), "%s: keyboard focus order reaches theme, language, hero CTA (got %s)" % (p, order))
+                r.check(order[0] == "skip-link", "%s: first Tab stop is the skip link (got %r)" % (p, order[0]))
+                visible = browser.evaluate("(() => { const el = document.querySelector('a[data-cta=hero]'); el.focus(); const cs = getComputedStyle(el); return cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) >= 2; })()")
+                r.check(visible, "%s: focused hero CTA shows an outline" % p)
+                # Without JavaScript the pitch and the install link must still work (last: leaves JS re-enabled).
+                browser.set_javascript(False)
+                browser.navigate(origin + p)
+                nojs = browser.evaluate("({ h1: !!document.querySelector('h1'), cta: (() => { const a = document.querySelector('a[data-cta=hero]'); if (!a) return false; const b = a.getBoundingClientRect(); return b.width > 0 && b.height > 0 && b.top < innerHeight; })() })")
+                browser.set_javascript(True)
+                r.check(nojs == {"h1": True, "cta": True}, "%s: without JavaScript the headline and hero install link are visible in the first screen (%s)" % (p, nojs))
+                browser.drain()
+
     except Exception as e:  # keep the report useful when the browser layer itself breaks
-        r.check(False, "browser checks ran to completion (%s: %s)" % (type(e).__name__, e))
+        r.check(False, "browser checks ran to completion (while testing %s: %s: %s)" % (current, type(e).__name__, e))
         if browser:
             browser.stderr.seek(0)
             tail = browser.stderr.read().decode("utf-8", "replace")[-1500:]
@@ -808,7 +908,9 @@ def browser_checks(r):
     finally:
         if browser:
             browser.close()
-        server.shutdown()
+        if server:
+            server.shutdown()
+            server.server_close()
         shutil.rmtree(profile, ignore_errors=True)
 
 
