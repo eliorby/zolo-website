@@ -149,12 +149,11 @@ class Doc(HTMLParser):
                 return
 
     def handle_data(self, data):
-        # text inside aria-hidden subtrees does not contribute to accessible names
-        hidden = False
+        # text inside an aria-hidden subtree does not contribute to any ancestor's accessible name
+        if any(el["attrs"].get("aria-hidden") == "true" for el in self.stack):
+            return
         for el in self.stack:
-            hidden = hidden or el["attrs"].get("aria-hidden") == "true"
-            if not hidden:
-                el["text"] += data
+            el["text"] += data
 
     def find(self, tag, **attrs):
         out = []
@@ -814,8 +813,13 @@ def browser_checks(r):
                 r.check(not runtime_problems(browser.drain(), origin), "%s: no runtime problems during redirect" % p)
                 continue
 
-            problems = runtime_problems(browser.drain(), origin)
-            r.check(not problems, "%s: no JS errors, console errors or failed requests on load:\n    %s" % (p, "\n    ".join(problems)))
+            load_events = browser.drain()
+            problems = runtime_problems(load_events, origin)
+            r.check(not problems, "%s: no JS errors, console errors or failed requests on load: %s" % (p, "; ".join(problems)))
+            if page.get("landing") and page["lang"] == "en":
+                # Positive proof that the DNS blackhole is active: the GA tag request must be attempted and fail to resolve.
+                ga = [m for m in load_events if m["method"] == "Network.loadingFailed" and "NAME_NOT_RESOLVED" in m["params"].get("errorText", "")]
+                r.check(bool(ga), "%s: external requests are blackholed (GA attempt failed with ERR_NAME_NOT_RESOLVED)" % p)
             info = browser.evaluate(PAGE_INFO_JS)
             r.check(not info["brokenImages"], "%s: no broken images %s" % (p, info["brokenImages"]))
             r.check(info["lang"] == page["lang"], "%s: runtime lang %s" % (p, page["lang"]))
