@@ -574,6 +574,13 @@ footer {
   padding-left: 6px;   /* controls the space between the number and the text */
 }
 
+/* Very narrow phones: the tagline wraps to two lines beside the logo, so drop it */
+@media (max-width: 379px) {
+  .brand-tagline {
+    display: none;
+  }
+}
+
 /* 720px: "general typography / spacing / section padding" */
 /* Mobile */
 @media (max-width: 719px) {
