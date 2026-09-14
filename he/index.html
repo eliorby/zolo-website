@@ -4,6 +4,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Apply a saved manual theme before first paint (avoids a light/dark flash) -->
+  <script>(function(){try{var t=localStorage.getItem("zolo_theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();</script>
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6137B9Y5KZ"></script>
@@ -24,30 +26,50 @@
   <link rel="alternate" href="https://zolo-deals.com/en/" hreflang="en">
   <link rel="alternate" href="https://zolo-deals.com/he/" hreflang="he">
 
-  <title>זולו - לבלות בזול</title>
-  <meta property="og:title" content="זולו - לבלות בזול">
+  <title>זולו - דילים של האפי האוור בתל אביב | לבלות בזול</title>
+  <meta property="og:title" content="זולו - דילים של האפי האוור בתל אביב | לבלות בזול">
 
-  <meta name="description" content="דילים של האפי האוור בזמן אמת בתל אביב. ברים, פאבים, מסעדות, בתי קפה.">
-  <meta property="og:description" content="דילים של האפי האוור בזמן אמת בתל אביב. ברים, פאבים, מסעדות, בתי קפה.">
+  <meta name="description" content="דילים של האפי האוור בזמן אמת בתל אביב: ברים, פאבים, מסעדות, בתי קפה. רואים מה קורה עכשיו על מפה חיה או מתכננים את השבוע. הורידו את אפליקציית זולו מ-Google Play.">
+  <meta property="og:description" content="דילים של האפי האוור בזמן אמת בתל אביב: ברים, פאבים, מסעדות, בתי קפה. רואים מה קורה עכשיו על מפה חיה או מתכננים את השבוע. הורידו את אפליקציית זולו מ-Google Play.">
 
-  <meta property="og:image" content="https://zolo-deals.com/assets/he/zolo_feature_graphic_he.png">
-  <meta name="twitter:image" content="https://zolo-deals.com/assets/he/zolo_feature_graphic_he.png">
+  <meta property="og:image" content="https://zolo-deals.com/assets/he/zolo_feature_graphic_he.jpg">
+  <meta property="og:image:width" content="1024">
+  <meta property="og:image:height" content="500">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/he/zolo_feature_graphic_he.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
   <meta property="og:site_name" content="זולו">
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Zolo",
-    "url": "https://zolo-deals.com",
-    "logo": "https://zolo-deals.com/assets/common/icon_zolo.png",
-    "sameAs": [
-      "https://www.instagram.com/zolo.deals",
-      "https://www.facebook.com/getzolo",
-      "https://www.tiktok.com/@zolo.deals"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://zolo-deals.com/#organization",
+        "name": "Zolo",
+        "url": "https://zolo-deals.com",
+        "logo": "https://zolo-deals.com/assets/common/icon_zolo.png",
+        "sameAs": [
+          "https://www.instagram.com/zolo.deals",
+          "https://www.facebook.com/getzolo",
+          "https://www.tiktok.com/@zolo.deals"
+        ]
+      },
+      {
+        "@type": "MobileApplication",
+        "name": "Zolo",
+        "url": "https://zolo-deals.com/he/",
+        "description": "דילים של האפי האוור בזמן אמת בתל אביב מברים, פאבים, מסעדות ובתי קפה, על מפה אינטראקטיבית עם סינונים חכמים.",
+        "image": "https://zolo-deals.com/assets/he/zolo_feature_graphic_he.jpg",
+        "operatingSystem": "Android",
+        "applicationCategory": "LifestyleApplication",
+        "installUrl": "https://play.google.com/store/apps/details?id=com.zolo.deals",
+        "inLanguage": ["en", "he"],
+        "author": { "@id": "https://zolo-deals.com/#organization" }
+      }
     ]
   }
   </script>
@@ -61,7 +83,7 @@
   <div class="page">
     <header>
       <div class="brand">
-        <img src="/assets/common/icon_zolo.png" alt="זולו - לוגו" width="36" height="36">
+        <img src="/assets/common/icon_zolo_96.webp" alt="זולו - לוגו" width="36" height="36">
         <div class="brand-text">
           <span class="brand-name">זולו</span>
           <span class="brand-tagline">לבלות בזול</span>
@@ -69,16 +91,16 @@
       </div>
 
       <div class="header-controls">
-        <button class="theme-toggle" type="button" aria-label="Theme: system" data-theme-btn>
+        <button class="theme-toggle" type="button" aria-label="ערכת נושא: מערכת" data-theme-btn>
           <span aria-hidden="true">🖥️</span>
         </button>
-        <button class="lang-toggle" type="button" aria-label="Language: English" data-lang-btn>EN</button>
+        <button class="lang-toggle" type="button" aria-label="החלפת שפה לאנגלית" data-lang-btn lang="en">EN</button>
       </div>
     </header>
 
     <main id="main-content">
       <section class="hero">
-        <div class="hero-text">
+        <div class="hero-lead">
           <h1>דילים של האפי האוור בזמן אמת בתל אביב.</h1>
           <h2>ברים, פאבים, מסעדות, בתי קפה.</h2>
           <p class="secondary-description">
@@ -87,15 +109,33 @@
           </p>
 
           <div class="cta-row">
-            <a href="https://play.google.com/store/apps/details?id=com.zolo.deals"
-               aria-label="להורדה מ: Google Play">
-              <img
-                src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png"
-                alt="זולו - להורדה מ: Google Play"
-                style="height: 52px;">
+            <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-cta="hero" aria-label="להורדה מ: Google Play">
+              <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png" alt="" width="175" height="52" decoding="async">
             </a>
           </div>
+        </div>
 
+        <div class="hero-images">
+          <div
+            class="hero-images-background"
+            data-hero-bg
+            data-light="/assets/he/map_02_he_light_cropped.webp"
+            data-dark="/assets/he/map_02_he_dark_cropped.webp"
+            aria-hidden="true"></div>
+
+          <picture data-theme-pic>
+            <source srcset="/assets/he/place_details_he_dark_mockup.webp" media="(prefers-color-scheme: dark)">
+            <img
+              class="hero-images-mockup"
+              src="/assets/he/place_details_he_light_mockup.webp"
+              alt="אפליקציית זולו מציגה דילים של האפי האוור של בית עסק על מפת תל אביב"
+              width="840" height="1773"
+              fetchpriority="high"
+              decoding="async">
+          </picture>
+        </div>
+
+        <div class="hero-details">
           <p>זולו חוסכת לך זמן וכסף על ידי הצגת דילים של האפי האוור בזמן אמת מברים, פאבים, מסעדות ובתי קפה בתל אביב.</p>
           <p>עם Zolo אפשר:</p>
           <ul class="feature-list">
@@ -105,51 +145,41 @@
             <li class="feature-item"><span class="dot"></span><span>להציג או להסתיר דילים שעומדים להתחיל או להסתיים.</span></li>
           </ul>
         </div>
+      </section>
 
-        <div class="hero-images">
-          <div
-            class="hero-images-background"
-            data-hero-bg
-            data-light="/assets/he/map_02_he_light_cropped.png"
-            data-dark="/assets/he/map_02_he_dark_cropped.png"
-            aria-hidden="true"></div>
+      <section class="section" aria-label="צילומי מסך מהאפליקציה">
+        <div class="screenshots">
+          <div class="shot">
+            <picture data-theme-pic>
+              <source srcset="/assets/he/map_02_he_dark.webp" media="(prefers-color-scheme: dark)">
+              <img src="/assets/he/map_02_he_light.webp" alt="זולו - תצוגת מפה - zoom in" width="810" height="1755" loading="lazy" decoding="async">
+            </picture>
+          </div>
 
-          <img
-            class="hero-images-mockup"
-            data-theme-img
-            data-light="/assets/he/place_details_he_light_mockup.png"
-            data-dark="/assets/he/place_details_he_dark_mockup.png"
-            src="/assets/he/place_details_he_light_mockup.png"
-            alt="זולו - אפליקציה">
+          <div class="shot">
+            <picture data-theme-pic>
+              <source srcset="/assets/he/place_details_he_dark.webp" media="(prefers-color-scheme: dark)">
+              <img src="/assets/he/place_details_he_light.webp" alt="זולו - פרטי עסק" width="810" height="1755" loading="lazy" decoding="async">
+            </picture>
+          </div>
+
+          <div class="shot">
+            <picture data-theme-pic>
+              <source srcset="/assets/he/map_01_he_dark.webp" media="(prefers-color-scheme: dark)">
+              <img src="/assets/he/map_01_he_light.webp" alt="זולו - תצוגת מפה - zoom out" width="810" height="1755" loading="lazy" decoding="async">
+            </picture>
+          </div>
         </div>
       </section>
 
-      <section class="section">
-        <div class="screenshots">
-          <div class="shot">
-            <img data-theme-img
-              data-light="/assets/he/map_02_he_light.png"
-              data-dark="/assets/he/map_02_he_dark.png"
-              src="/assets/he/map_02_he_light.png"
-              alt="זולו - תצוגת מפה - zoom in">
+      <section class="section cta-section">
+        <h2>מוכנים להאפי האוור?</h2>
+        <p>הורידו את זולו מ-Google Play וגלו מה קורה הערב.</p>
+          <div class="cta-row">
+            <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-cta="bottom" aria-label="להורדה מ: Google Play">
+              <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png" alt="" width="175" height="52" decoding="async">
+            </a>
           </div>
-
-          <div class="shot">
-            <img data-theme-img
-              data-light="/assets/he/place_details_he_light.png"
-              data-dark="/assets/he/place_details_he_dark.png"
-              src="/assets/he/place_details_he_light.png"
-              alt="זולו - פרטי עסק">
-          </div>
-
-          <div class="shot">
-            <img data-theme-img
-              data-light="/assets/he/map_01_he_light.png"
-              data-dark="/assets/he/map_01_he_dark.png"
-              src="/assets/he/map_01_he_light.png"
-              alt="זולו - תצוגת מפה - zoom out">
-          </div>
-        </div>
       </section>
     </main>
 
@@ -164,28 +194,29 @@
       <nav class="social-links" aria-label="Zolo social links">
         <a href="https://www.instagram.com/zolo.deals" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on Instagram">
           <img
-            src="/assets/social/logo_instagram.png"
+            src="/assets/social/logo_instagram_96.png"
             alt=""
             width="22"
-            height="22">
+            height="22"
+            loading="lazy"
+            decoding="async">
         </a>
 
         <a href="https://www.tiktok.com/@zolo.deals" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on TikTok">
-          <img data-theme-img
-            data-light="/assets/social/logo_tiktok_circle_light.png"
-            data-dark="/assets/social/logo_tiktok_circle_dark.png"
-            src="/assets/social/logo_tiktok_circle_light.png"
-            alt=""
-            width="22"
-            height="22">
+          <picture data-theme-pic>
+            <source srcset="/assets/social/logo_tiktok_circle_dark_96.png" media="(prefers-color-scheme: dark)">
+            <img src="/assets/social/logo_tiktok_circle_light_96.png" alt="" width="22" height="22" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="https://www.facebook.com/getzolo" target="_blank" rel="noopener noreferrer me" aria-label="Zolo on Facebook">
           <img
-            src="/assets/social/logo_facebook.png"
+            src="/assets/social/logo_facebook_96.png"
             alt=""
             width="22"
-            height="22">
+            height="22"
+            loading="lazy"
+            decoding="async">
         </a>
       </nav>
 
@@ -198,165 +229,7 @@
     </footer>
   </div>
 
-<script>
-(function () {
-  const btn = document.querySelector("[data-lang-btn]");
-  if (!btn) return;
-
-  const STORAGE_KEY = "preferredLang";
-
-  function savePreferredLang(lang) {
-    try {
-      localStorage.setItem(STORAGE_KEY, lang);
-    } catch (e) {}
-  }
-
-  function currentLang() {
-    const path = (location.pathname || "/").toLowerCase();
-    if (path.startsWith("/he/") || path === "/he") {
-      return "he";
-    }
-    return "en";
-  }
-
-  function updateLabel(current) {
-    btn.textContent = current === "he" ? "EN" : "עב";
-  }
-
-  function buildTargetUrl(lang) {
-    const path = (location.pathname || "/").toLowerCase().replace(/\/+$/, "");
-    if (path.startsWith("/en/")) {
-      return path.replace(/^\/en/, `/${lang}/`);
-    }
-    if (path.startsWith("/he/")) {
-      return path.replace(/^\/he/, `/${lang}/`);
-    }
-    return `/${lang}/`;
-  }
-
-  const current = currentLang();
-
-  updateLabel(current);
-  savePreferredLang(current);
-
-  btn.addEventListener("click", () => {
-    const cur = currentLang();
-    const next = cur === "he" ? "en" : "he";
-
-    savePreferredLang(next);
-
-    const url = buildTargetUrl(next);
-    location.href = url + (location.search || "") + (location.hash || "");
-  });
-})();
-</script>
-
-<script>
-(function () {
-  const STORAGE_KEY = "zolo_theme"; // system | dark | light
-  const root = document.documentElement;
-  const btn = document.querySelector("[data-theme-btn]");
-  const mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
-
-  const ICON = {
-    system: "🖥️",
-    dark: "🌙",
-    light: "☀️"
-  };
-
-  const LABEL = {
-    system: "Theme: system",
-    dark: "Theme: dark",
-    light: "Theme: light"
-  };
-
-  function systemPrefersDark() {
-    return !!(mq && mq.matches);
-  }
-
-  function effectiveTheme(mode) {
-    if (mode === "dark") return "dark";
-    if (mode === "light") return "light";
-    return systemPrefersDark() ? "dark" : "light";
-  }
-
-  function setBtn(mode) {
-    if (!btn) return;
-
-    btn.innerHTML = '<span aria-hidden="true">' + ICON[mode] + '</span>';
-    btn.setAttribute("aria-label", LABEL[mode]);
-    btn.title = LABEL[mode];
-  }
-
-  function apply(mode) {
-    root.setAttribute("data-theme", mode);
-    setBtn(mode);
-
-    const theme = effectiveTheme(mode);
-
-    document.querySelectorAll("img[data-theme-img]").forEach(img => {
-      const next = img.getAttribute(theme === "dark" ? "data-dark" : "data-light");
-
-      if (next && img.getAttribute("src") !== next) {
-        img.setAttribute("src", next);
-      }
-    });
-
-    document.querySelectorAll("[data-hero-bg]").forEach(el => {
-      const next = el.getAttribute(theme === "dark" ? "data-dark" : "data-light");
-
-      if (next) {
-        el.style.backgroundImage = `url("${next}")`;
-      }
-    });
-  }
-
-  function getMode() {
-    try {
-      return localStorage.getItem(STORAGE_KEY) || "system";
-    } catch (e) {
-      return "system";
-    }
-  }
-
-  function setMode(mode) {
-    try {
-      localStorage.setItem(STORAGE_KEY, mode);
-    } catch (e) {}
-
-    apply(mode);
-  }
-
-  function nextMode(mode) {
-    if (mode === "system") return "dark";
-    if (mode === "dark") return "light";
-    return "system";
-  }
-
-  // init
-  apply(getMode());
-
-  // click cycle
-  if (btn) {
-    btn.addEventListener("click", () => {
-      setMode(nextMode(getMode()));
-    });
-  }
-
-  // OS change (only when mode=system)
-  function onSystemChange() {
-    if (getMode() === "system") {
-      apply("system");
-    }
-  }
-
-  if (mq && mq.addEventListener) {
-    mq.addEventListener("change", onSystemChange);
-  } else if (mq && mq.addListener) {
-    mq.addListener(onSystemChange);
-  }
-})();
-</script>
+<script src="/assets/common/site.js" defer></script>
 
 </body>
 </html>

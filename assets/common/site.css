@@ -243,6 +243,12 @@ html[dir="rtl"] .hero {
   );
 }
 
+/* <picture> is only used for light/dark source selection; keep the <img> as the layout box */
+.hero-images picture,
+.shot picture {
+  display: contents;
+}
+
 /* Phone column wrapper (becomes the height reference + clipping layer) */
 .hero-images {
   position: relative;
@@ -297,10 +303,15 @@ html[dir="rtl"] .hero-images-mockup {
 }
 
 .secondary-description {
-  font-size: clamp(20px, 4.5vw, 26px);
+  margin: 0 0 20px;
+  font-size: clamp(18px, 4.2vw, 24px);
   color: var(--on-background-color);
-  font-weight: 600;
-  line-height: 1.6;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.hero-details > p {
+  margin: 0 0 10px;
 }
 
 .cta-row {
@@ -309,6 +320,21 @@ html[dir="rtl"] .hero-images-mockup {
   flex-wrap: wrap;
   gap: 12px;
   margin: 0 0 24px;
+}
+
+.store-badge {
+  display: inline-block;
+  border-radius: 8px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.store-badge img {
+  display: block;
+  height: 52px;
+  width: auto;
+}
+.store-badge:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
 }
 
 .btn {
@@ -377,6 +403,24 @@ html[dir="rtl"] .hero-images-mockup {
 .section h2 {
   margin: 0 0 12px;
   font-size: 22px;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 28px 18px;
+}
+.cta-section h2 {
+  margin: 0 0 6px;
+  font-size: clamp(24px, 5vw, 30px);
+  letter-spacing: -0.3px;
+}
+.cta-section p {
+  margin: 0 0 18px;
+  font-size: 17px;
+  color: var(--on-background-muted-color);
+}
+.cta-section .cta-row {
+  margin: 0;
 }
 
 .screenshots {
@@ -558,10 +602,22 @@ footer {
   .hero {
     padding: 32px;
 
-    /* two columns, no overlap possible */
+    /* two columns, no overlap possible; the phone spans both text rows */
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "lead    images"
+      "details images";
     column-gap: 24px;
+    row-gap: 0;
+  }
+  .hero-lead { grid-area: lead; }
+  .hero-details { grid-area: details; }
+  .hero-images { grid-area: images; }
+
+  .hero-lead .cta-row {
+    justify-content: flex-start;
   }
 
   .hero-images {
@@ -590,6 +646,7 @@ footer {
   .theme-toggle,
   .lang-toggle,
   .btn,
+  .store-badge,
   .screenshots {
     transition: none !important;
     animation: none !important;
@@ -597,7 +654,8 @@ footer {
 
   .theme-toggle:hover,
   .lang-toggle:hover,
-  .btn:hover {
+  .btn:hover,
+  .store-badge:hover {
     transform: none;
   }
 
