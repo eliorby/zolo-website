@@ -86,6 +86,15 @@
         if (next && imgs[j].getAttribute("src") !== next) imgs[j].setAttribute("src", next);
       }
 
+      // Browser UI color (<meta name="theme-color" media=...>): follow the OS in system mode,
+      // otherwise force both entries to the chosen theme.
+      var metas = document.querySelectorAll('meta[name="theme-color"]');
+      for (var m = 0; m < metas.length; m++) {
+        if (!metas[m].hasAttribute("data-default")) metas[m].setAttribute("data-default", metas[m].getAttribute("content") || "");
+        var wanted = mode === "system" ? metas[m].getAttribute("data-default") : (theme === "dark" ? "#000000" : "#FFFFFF");
+        if (metas[m].getAttribute("content") !== wanted) metas[m].setAttribute("content", wanted);
+      }
+
       // Decorative CSS background chosen per theme (not fetched while display:none on mobile)
       var bgs = document.querySelectorAll("[data-hero-bg]");
       for (var k = 0; k < bgs.length; k++) {
