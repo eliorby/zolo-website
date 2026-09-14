@@ -601,10 +601,7 @@ class Chrome:
             cmd.insert(1, "--no-sandbox")   # CI containers/root cannot use Chrome's user-namespace sandbox
         self.stderr = tempfile.TemporaryFile()
         self.deadline = time.monotonic() + BROWSER_DEADLINE
-        # close_fds=False keeps the dup2'd fds 3/4 alive in the child (Python would otherwise close them
-        # after preexec_fn); the child inherits a few harmless extra descriptors.
-        self.proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=self.stderr,
-                                     close_fds=False, preexec_fn=lambda: (os.dup2(r_in, 3), os.dup2(w_out, 4)))
+        self.proc = self._spawn(cmd, r_in, w_out)
         os.close(r_in)
         os.close(w_out)
         self.w = w_in
@@ -613,6 +610,32 @@ class Chrome:
         self.next_id = 0
         self.events = []
         self.session = None
+
+    def _spawn(self, cmd, r_in, w_out):
+        """Chrome expects the command pipe on fd 3 and the response pipe on fd 4. Arrange that in the
+        parent (preserving whatever occupies those numbers) and hand them over with pass_fds. This
+        works on every Python 3 and needs no preexec_fn, which Python 3.14 no longer lets juggle fds."""
+        saved = {}
+        for fd in (3, 4):
+            try:
+                saved[fd] = os.dup(fd)
+            except OSError:
+                saved[fd] = None
+        tmp_in, tmp_out = os.dup(r_in), os.dup(w_out)   # copies, so a pipe end already at 3/4 is not clobbered
+        os.dup2(tmp_in, 3)
+        os.dup2(tmp_out, 4)
+        os.close(tmp_in)
+        os.close(tmp_out)
+        try:
+            return subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                    stderr=self.stderr, pass_fds=(3, 4))
+        finally:
+            for fd, old in saved.items():
+                if old is None:
+                    os.close(fd)
+                else:
+                    os.dup2(old, fd)
+                    os.close(old)
 
     def _read_message(self, timeout):
         while b"\0" not in self.buf:
@@ -788,6 +811,7 @@ def browser_checks(r):
     profile = tempfile.mkdtemp(prefix="zolo-site-check-")
     browser = None
     server = None
+    current = "(startup)"
     try:
         # Launch Chrome before the server thread exists (preexec_fn forks a single-threaded process).
         browser = Chrome(chrome, profile)
@@ -798,7 +822,6 @@ def browser_checks(r):
             r.check(resp.status == 200, "local server serves the repository")
         browser.open_page()
         pages = [p for p in ALL_PAGES if not p.get("not_found")] + [NOT_FOUND_PAGE]
-        current = "(startup)"
         for page in pages:
             p = current = page["path"]
             browser.set_width(390)
