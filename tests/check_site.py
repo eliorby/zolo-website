@@ -23,6 +23,7 @@ import os
 import re
 import select
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -947,6 +948,8 @@ def main():
     ap.add_argument("--static", action="store_true", help="skip the headless-browser checks")
     ap.add_argument("-v", "--verbose", action="store_true", help="print passing checks too")
     args = ap.parse_args()
+    # SIGTERM (CI cancellation, kill) behaves like Ctrl-C so the finally blocks close Chrome and remove the profile
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
     r = Report(args.verbose)
     static_checks(r)
     if not args.static:
