@@ -320,6 +320,23 @@ html[dir="rtl"] .hero-images-mockup {
   margin: 0 0 10px;
 }
 
+.cta-block {
+  display: grid;
+  justify-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.cta-block .cta-row {
+  margin: 0 0 10px;
+}
+
+.cta-block .cta-note {
+  margin: 0 0 24px;
+  text-align: center;
+}
+
 .cta-row {
   display: flex;
   justify-content: center;
@@ -633,6 +650,10 @@ footer {
   .hero-images-background {
     display: none;  /* hide the map background behind the phone */
   }
+
+  .hero-images {
+    margin-bottom: 24px;
+  }
 }
 
 /* Desktop, hero becomes 2-column + absolute positioning of the mockup */
@@ -653,13 +674,6 @@ footer {
   .hero-lead { grid-area: lead; }
   .hero-details { grid-area: details; }
   .hero-images { grid-area: images; }
-
-  .hero-lead .cta-row {
-    justify-content: flex-start;
-  }
-  .hero-lead .cta-note {
-    text-align: start;
-  }
 
   .hero-images {
     justify-content: flex-end;
