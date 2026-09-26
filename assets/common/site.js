@@ -3,7 +3,8 @@
   "use strict";
 
   var root = document.documentElement;
-  var isHebrew = (root.getAttribute("lang") || "").toLowerCase().indexOf("he") === 0;
+  // Read at use time: the share page (/place/) switches language in place and fires "zolo:langchange".
+  function isHebrew() { return (root.getAttribute("lang") || "").toLowerCase().indexOf("he") === 0; }
 
   /* ---------- Language toggle ---------- */
   (function () {
@@ -47,9 +48,10 @@
     var mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
 
     var ICON = { system: "🖥️", dark: "🌙", light: "☀️" };
-    var LABEL = isHebrew
-      ? { system: "ערכת נושא: מערכת", dark: "ערכת נושא: כהה", light: "ערכת נושא: בהירה" }
-      : { system: "Theme: system", dark: "Theme: dark", light: "Theme: light" };
+    var LABELS = {
+      he: { system: "ערכת נושא: מערכת", dark: "ערכת נושא: כהה", light: "ערכת נושא: בהירה" },
+      en: { system: "Theme: system", dark: "Theme: dark", light: "Theme: light" }
+    };
 
     function systemPrefersDark() { return !!(mq && mq.matches); }
 
@@ -60,9 +62,10 @@
 
     function setBtn(mode) {
       if (!btn) return;
+      var label = LABELS[isHebrew() ? "he" : "en"][mode];
       btn.innerHTML = '<span aria-hidden="true">' + ICON[mode] + "</span>";
-      btn.setAttribute("aria-label", LABEL[mode]);
-      btn.title = LABEL[mode];
+      btn.setAttribute("aria-label", label);
+      btn.title = label;
     }
 
     function apply(mode) {
@@ -128,6 +131,8 @@
     function onSystemChange() { if (getMode() === "system") apply("system"); }
     if (mq && mq.addEventListener) mq.addEventListener("change", onSystemChange);
     else if (mq && mq.addListener) mq.addListener(onSystemChange);
+
+    document.addEventListener("zolo:langchange", function () { setBtn(getMode()); });
   })();
 
   /* ---------- Conversion tracking: <a data-cta="..."> ---------- */
@@ -149,7 +154,7 @@
         window.gtag("event", "install_click", {
           store: store(href),
           placement: a.getAttribute("data-cta") || "unknown",
-          language: isHebrew ? "he" : "en",
+          language: isHebrew() ? "he" : "en",
           link_url: href,
           transport_type: "beacon"
         });

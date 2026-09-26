@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["<TEAM_ID>.com.zolo.deals"],
+        "components": [
+          { "/": "/place/", "?": { "id": "?*" }, "comment": "Share links: https://zolo-deals.com/place/?id=<placeId>[&deal=<dealKey>]" },
+          { "/": "/place", "?": { "id": "?*" }, "comment": "Same link before GitHub Pages adds the trailing slash" }
+        ]
+      }
+    ]
+  }
+}

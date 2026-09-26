@@ -1,0 +1,222 @@
+<!doctype html>
+<!-- Share-link fallback: https://zolo-deals.com/place/?id=<placeId>[&deal=<dealKey>]
+     Contract owned by the app session (share-link-contract.md). The page is language-neutral:
+     assets/common/place.js validates the query and picks the language before first paint; all copy
+     below is static and nothing from the URL is written into the page. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Apply a saved manual theme before first paint (avoids a light/dark flash) -->
+  <script>(function(){try{var t=localStorage.getItem("zolo_theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();</script>
+  <script src="/assets/common/place.js"></script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6137B9Y5KZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-6137B9Y5KZ');
+  </script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+
+  <!-- One canonical for every shared link: the query is not part of the page identity -->
+  <link rel="canonical" href="https://zolo-deals.com/place/">
+  <meta property="og:url" content="https://zolo-deals.com/place/">
+
+  <title>Shared with you on Zolo</title>
+  <meta property="og:title" content="Shared with you on Zolo">
+
+  <!-- Link-preview scrapers do not run JavaScript, so the preview text is bilingual -->
+  <meta name="description" content="Open the shared place or deal in the Zolo app: real-time happy hour deals in Tel Aviv. · דילים של האפי האוור בזמן אמת בתל אביב.">
+  <meta property="og:description" content="Open the shared place or deal in the Zolo app: real-time happy hour deals in Tel Aviv. · דילים של האפי האוור בזמן אמת בתל אביב.">
+
+  <meta property="og:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.jpg">
+  <meta property="og:image:width" content="1024">
+  <meta property="og:image:height" content="500">
+  <meta name="twitter:image" content="https://zolo-deals.com/assets/en/zolo_feature_graphic_en.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta property="og:site_name" content="Zolo">
+  <meta property="og:type" content="website">
+
+  <!-- Every shared link is the same generic page: keep it out of search results -->
+  <meta name="robots" content="noindex,follow">
+
+  <link rel="stylesheet" href="/assets/common/site.css">
+  <style>
+    /* Language: English unless place.js chose Hebrew (so no-JS visitors get English, like the redirect pages) */
+    html:not([data-lang="he"]) [data-l10n="he"],
+    html[data-lang="he"] [data-l10n="en"],
+    html:not([data-lang]) [data-share-lang] {
+      display: none !important;
+    }
+    /* Message variant: generic without JS or for an unusable link, otherwise place / deal */
+    html:not([data-share]) [data-share-v]:not([data-share-v~="generic"]),
+    html[data-share="invalid"] [data-share-v]:not([data-share-v~="generic"]):not([data-share-v~="invalid"]),
+    html[data-share="place"] [data-share-v]:not([data-share-v~="place"]),
+    html[data-share="deal"] [data-share-v]:not([data-share-v~="deal"]) {
+      display: none !important;
+    }
+    [hidden] {
+      display: none !important;
+    }
+
+    .share-card {
+      text-align: center;
+      padding: 32px 18px 28px;
+    }
+    .share-card h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 6vw, 36px);
+      line-height: 1.2;
+      letter-spacing: -0.4px;
+    }
+    .share-card .lead {
+      margin: 0 auto 22px;
+      max-width: 32em;
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--on-background-muted-color);
+    }
+    .share-card .notice {
+      margin: -8px auto 22px;
+      max-width: 32em;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: rgb(var(--primary-rgb-color) / 0.12);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .share-card .actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .share-card .actions .btn {
+      min-width: 175px;
+      min-height: 52px;
+      font-size: 17px;
+    }
+    .share-card .cta-note {
+      margin: 10px 0 0;
+    }
+    .share-card .hint {
+      margin: 18px auto 0;
+      max-width: 30em;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--on-background-muted-color);
+    }
+    .share-card .home {
+      display: inline-block;
+      margin-top: 18px;
+      font-weight: 600;
+      color: var(--on-background-link-color);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    @media (min-width: 720px) {
+      .share-card { padding: 44px 32px 36px; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main-content"><span data-l10n="en">Skip to main content</span><span lang="he" data-l10n="he">דלג לתוכן הראשי</span></a>
+
+  <div class="page">
+    <header>
+      <a class="brand" href="/" data-home-link>
+        <img src="/assets/common/icon_zolo_96.webp" alt="" width="36" height="36">
+        <div class="brand-text" data-l10n="en">
+          <span class="brand-name">Zolo</span>
+          <span class="brand-tagline">Slicing Prices</span>
+        </div>
+        <div class="brand-text" lang="he" data-l10n="he">
+          <span class="brand-name">זולו</span>
+          <span class="brand-tagline">לבלות בזול</span>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <button class="theme-toggle" type="button" aria-label="Theme: system" data-theme-btn>
+          <span aria-hidden="true">🖥️</span>
+        </button>
+        <button class="lang-toggle" type="button" aria-label="Switch language to Hebrew" data-l10n="en" data-share-lang="he" lang="he">עב</button>
+        <button class="lang-toggle" type="button" aria-label="החלפת שפה לאנגלית" data-l10n="he" data-share-lang="en" lang="en">EN</button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="section share-card" data-l10n="en">
+        <h1>
+          <span data-share-v="generic">Shared from Zolo</span>
+          <span data-share-v="place">Someone shared a place with you</span>
+          <span data-share-v="deal">Someone shared a happy hour deal with you</span>
+        </h1>
+        <p class="lead" data-share-v="generic">Zolo shows real-time happy hour deals at bars, pubs, restaurants and cafés in Tel Aviv.</p>
+        <p class="lead" data-share-v="place">Open it in the Zolo app to see it on the map, with its happy hour deals and hours.</p>
+        <p class="lead" data-share-v="deal">Open it in the Zolo app to see the deal and everything else that's on at this place. If the deal has changed since it was shared, the app shows what's on there now.</p>
+        <p class="notice" data-share-v="invalid">This link looks incomplete. It may have been cut off when it was copied: ask for it again, or open Zolo and find the place on the map.</p>
+
+        <div class="actions">
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-open-app hidden>Open in Zolo</a>
+          <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-cta="share" aria-label="Get it on Google Play">
+            <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_English.png" alt="" width="175" height="52" decoding="async">
+          </a>
+        </div>
+        <p class="cta-note">Free · Android · Tel Aviv</p>
+        <p class="hint" data-share-v="place deal">Just installed Zolo? Go back to the message and tap the link again: it opens right in the app.</p>
+        <a class="home" href="/en/">Go to the Zolo home page</a>
+      </section>
+
+      <section class="section share-card" lang="he" dir="rtl" data-l10n="he">
+        <h1>
+          <span data-share-v="generic">שיתוף מזולו</span>
+          <span data-share-v="place">שיתפו איתכם מקום</span>
+          <span data-share-v="deal">שיתפו איתכם דיל של האפי האוור</span>
+        </h1>
+        <p class="lead" data-share-v="generic">בזולו תמצאו דילים של האפי האוור בזמן אמת בברים, פאבים, מסעדות ובתי קפה בתל אביב.</p>
+        <p class="lead" data-share-v="place">פתחו אותו באפליקציית זולו כדי לראות אותו על המפה, עם הדילים ושעות ההאפי האוור.</p>
+        <p class="lead" data-share-v="deal">פתחו אותו באפליקציית זולו כדי לראות את הדיל ואת כל מה שקורה במקום. אם הדיל השתנה מאז ששותף, תראו באפליקציה מה קורה שם עכשיו.</p>
+        <p class="notice" data-share-v="invalid">נראה שהקישור לא שלם. ייתכן שהוא נחתך בהעתקה: בקשו אותו שוב, או פתחו את זולו ומצאו את המקום על המפה.</p>
+
+        <div class="actions">
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-open-app hidden>פתיחה בזולו</a>
+          <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-cta="share" aria-label="להורדה מ: Google Play">
+            <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png" alt="" width="175" height="52" decoding="async">
+          </a>
+        </div>
+        <p class="cta-note">חינם · אנדרואיד · תל אביב</p>
+        <p class="hint" data-share-v="place deal">התקנתם את זולו? חזרו להודעה והקישו שוב על הקישור: הוא ייפתח ישר באפליקציה.</p>
+        <a class="home" href="/he/">לדף הבית של זולו</a>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-links" data-l10n="en">
+        <a href="/en/privacy/">Privacy</a>
+        <a href="/en/terms/">Terms</a>
+        <a href="/en/accessibility/">Accessibility</a>
+        <a href="/en/delete/">Delete account</a>
+      </div>
+      <div class="footer-links" lang="he" dir="rtl" data-l10n="he">
+        <a href="/he/privacy/">פרטיות</a>
+        <a href="/he/terms/">תנאים</a>
+        <a href="/he/accessibility/">נגישות</a>
+        <a href="/he/delete/">מחיקת חשבון</a>
+      </div>
+      <div>© Zolo</div>
+    </footer>
+  </div>
+
+<script src="/assets/common/site.js" defer></script>
+</body>
+</html>

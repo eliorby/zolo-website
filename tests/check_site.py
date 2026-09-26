@@ -29,6 +29,7 @@ import sys
 import tempfile
 import threading
 import time
+import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta
@@ -50,6 +51,24 @@ SMALL_ICON_MAX_DISPLAY_PX = 64
 
 STORE_URLS = {"google_play": PLAY_URL}          # add "app_store": "https://apps.apple.com/..." when it exists
 STORE_HOSTS = {"google_play": "play.google.com", "app_store": "apps.apple.com"}
+
+# ---- Share links: contract owned by the app session (~/project-runtimes/zolo-app-runtime/share-link-contract.md) ----
+SHARE_PATH = "/place/"                          # https://zolo-deals.com/place/?id=<placeId>[&deal=<dealKey>]
+SHARE_ID_RE = r"^[A-Za-z0-9_-]{1,64}$"
+SHARE_DEAL_RE = r"^[0-9a-f]{8}$"
+SHARE_MAX_URL = 2048
+APP_PACKAGE = "com.zolo.deals"
+# Google Play App Signing certificate of the Play-installed production app (contract section 6). Not the
+# upload key (48:99:DD:E0:...:01:F8) and not a debug key. Changing it must be a deliberate, two-place edit.
+PLAY_SIGNING_SHA256 = "A8:ED:91:81:D9:70:C6:E2:A9:52:99:83:F9:C5:AD:C9:61:A3:15:7C:71:FF:0F:E1:A8:B1:A5:7F:BF:8C:CC:EE"
+KNOWN_BAD_FINGERPRINTS = {
+    # Android documentation / codelab examples
+    "14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5",
+    "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
+}
+UPLOAD_KEY_PREFIX, UPLOAD_KEY_SUFFIX = "48:99:DD:E0", "01:F8"
+PLACEHOLDER_WORDS = re.compile(r"TODO|TBD|XXX|PLACEHOLDER|REPLACE|EXAMPLE|CHANGEME|<|>|\$\{", re.I)
+PLACEHOLDER_TEAM_IDS = {"ABCDE12345", "ABCDEFGHIJ", "0123456789", "1234567890", "A1B2C3D4E5", "9JA89QQLNQ", "TEAMID1234"}
 
 WIDTHS = (320, 390, 768, 1280)                   # conversion-critical pages (landing, 404)
 WIDTHS_SECONDARY = (320, 1280)                   # legal pages
@@ -90,7 +109,9 @@ def redirect_pages():
 
 
 NOT_FOUND_PAGE = {"path": "/404.html", "file": "404.html", "lang": "en", "indexable": False, "not_found": True}
-ALL_PAGES = localized_pages() + redirect_pages() + [NOT_FOUND_PAGE]
+# Language-neutral share-link fallback: static lang=en, Hebrew chosen at runtime (checked separately)
+SHARE_PAGE = {"path": SHARE_PATH, "file": "place/index.html", "lang": "en", "indexable": False, "share": True}
+ALL_PAGES = localized_pages() + redirect_pages() + [NOT_FOUND_PAGE, SHARE_PAGE]
 
 
 # --------------------------------------------------------------------------- reporting
@@ -224,6 +245,11 @@ def check_page_metadata(r, page, doc):
     else:
         r.check(len(canonicals) == 1, "%s: exactly one canonical" % p)
     canonical = canonicals[0]["attrs"].get("href") if canonicals else None
+    if page.get("share"):
+        # every shared link collapses onto the one generic page; no per-language URLs exist
+        r.check(canonical == SITE + SHARE_PATH and doc.meta(property="og:url") == SITE + SHARE_PATH,
+                "%s: canonical and og:url are %s%s (got %s)" % (p, SITE, SHARE_PATH, canonical))
+        r.check(not doc.find("link", rel="alternate"), "%s: no hreflang alternates on the language-neutral share page" % p)
     if page["indexable"]:
         r.check(canonical == canonical_expected, "%s: canonical is %s (got %s)" % (p, canonical_expected, canonical))
         r.check(doc.meta(property="og:url") == canonical_expected, "%s: og:url matches canonical" % p)
@@ -299,9 +325,9 @@ def check_page_links_and_assets(r, page, doc, text):
     for ref in sorted(refs):
         f = local_file(ref)
         r.check(bool(f and f.is_file()), "%s: local reference exists: %s" % (p, ref))
-    if page.get("not_found"):
-        # GitHub Pages serves 404.html for any missing path, including nested ones,
-        # so every URL in it must be root-relative or absolute.
+    if page.get("not_found") or page.get("share"):
+        # GitHub Pages serves 404.html for any missing path, including nested ones (/place/x/y),
+        # and the share page lives one level down: every URL must be root-relative or absolute.
         rel = [v for v in re.findall(r'(?:href|src)="([^"]+)"', text)
                if not v.startswith(("/", "http", "#", "mailto:"))]
         r.check(not rel, "%s: no relative URLs (would break on nested paths): %s" % (p, rel))
@@ -355,6 +381,19 @@ def check_page_a11y(r, page, doc):
     h1 = doc.find("h1")
     if page["indexable"] or page.get("not_found"):
         r.check(len(h1) == 1, "%s: exactly one <h1> (got %d)" % (p, len(h1)))
+    if page.get("share"):
+        # one language block is displayed at a time; each has exactly one <h1>
+        for lang in LANGS:
+            blocks = [el for el in doc.find("section") if el["attrs"].get("data-l10n") == lang]
+            inside = [h for h in h1 if blocks and blocks[0]["uid"] in h["parent_uids"]]
+            r.check(len(blocks) == 1 and len(inside) == 1, "%s: the %s block has exactly one <h1>" % (p, lang))
+        he = next((el for el in doc.find("section") if el["attrs"].get("data-l10n") == "he"), None)
+        r.check(bool(he and he["attrs"].get("lang") == "he" and he["attrs"].get("dir") == "rtl"),
+                "%s: Hebrew block declares lang=he dir=rtl" % p)
+        for el in doc.elements:
+            if el["attrs"].get("data-l10n") == "he" and el["tag"] != "button":   # the toggle's text is "EN" (lang=en)
+                inherited = any(q["attrs"].get("lang") == "he" for q in doc.elements if q["uid"] in el["parent_uids"])
+                r.check(el["attrs"].get("lang") == "he" or inherited, "%s: Hebrew-only <%s> declares lang=he" % (p, el["tag"]))
     for el in doc.elements:
         if el["tag"] in ("a", "button"):
             r.check(accessible_name(el, doc), "%s: <%s> has an accessible name (%s)" % (p, el["tag"], el["attrs"].get("href") or el["attrs"].get("class")))
@@ -372,6 +411,8 @@ def check_ctas(r, page, doc):
         r.check({"hero", "bottom"} <= placements, "%s: install CTAs at hero and bottom (got %s)" % (p, sorted(placements)))
     elif page.get("not_found"):
         r.check(placements == {"404"}, "%s: install CTA on 404 page" % p)
+    elif page.get("share"):
+        r.check(placements == {"share"} and len(ctas) == 2, "%s: one Google Play CTA per language (got %s)" % (p, sorted(placements)))
     else:
         r.check(not placements, "%s: no install CTAs expected (got %s)" % (p, sorted(placements)))
     for c in ctas:
@@ -488,6 +529,117 @@ def check_repo_hygiene(r):
     r.check(not list(ROOT.glob("assets/**/*.psd")), "no design sources under assets/")
 
 
+SITE_TEXT_SUFFIXES = (".html", ".js", ".css", ".json", ".xml", ".txt")
+
+
+def site_text_files():
+    """Everything GitHub Pages publishes that could carry a link (the quality gate itself excluded)."""
+    for f in sorted(ROOT.rglob("*")):
+        rel = f.relative_to(ROOT).as_posix()
+        if f.is_file() and f.suffix in SITE_TEXT_SUFFIXES and not rel.startswith((".git/", ".idea/", "tests/")):
+            yield rel, f.read_text(encoding="utf-8", errors="replace")
+
+
+def check_share_link(r):
+    r.section("share links (contract: /place/?id=<placeId>[&deal=<dealKey>])")
+    js = read("assets/common/place.js")
+    # The page must validate exactly as the app does; these mirror share-link-contract.md sections 1-4.
+    r.check("var ID_RE = /%s/;" % SHARE_ID_RE.replace("/", "\\/") in js, "place.js validates id with %s" % SHARE_ID_RE)
+    r.check("var DEAL_RE = /%s/;" % SHARE_DEAL_RE in js, "place.js validates deal with %s" % SHARE_DEAL_RE)
+    r.check("var MAX_URL_LENGTH = %d;" % SHARE_MAX_URL in js, "place.js rejects URLs over %d characters" % SHARE_MAX_URL)
+    r.check('var SHARE_PATH = "%s";' % SHARE_PATH in js and 'var PACKAGE = "%s";' % APP_PACKAGE in js and 'var PLAY_URL = "%s";' % PLAY_URL in js,
+            "place.js uses the contract path, package and Play listing")
+    # Nothing from the URL may reach markup, script evaluation or navigation.
+    sinks = [w for w in ("innerHTML", "outerHTML", "insertAdjacentHTML", "document.write", "eval(", "Function(",
+                         "location.href =", "location.assign", "location.replace", "window.open", "setTimeout(\"",
+                         "firebase", "firestore") if w.lower() in js.lower()]
+    r.check(not sinks, "place.js has no HTML/script/navigation sinks and no backend access (found %s)" % sinks)
+    r.check(js.count("setAttribute(\"href\"") == 1 and "intentUrl(link)" in js,
+            "place.js writes exactly one attribute from the link: the intent href built from the validated id/deal")
+
+    # One scheme only: no competing routes, custom schemes, Dynamic Links or localized share paths.
+    competing = re.compile(r"zolo://|\.page\.link|app\.goo\.gl|zolo-deals\.com/(?:p|share|en/place|he/place)\b|"
+                           r"href=\"/(?:p|share|en/place|he/place)/")
+    hits = ["%s: %s" % (rel, m.group(0)) for rel, text in site_text_files() for m in competing.finditer(text)]
+    r.check(not hits, "no competing share-link scheme anywhere on the site %s" % hits)
+    pages_with_share = sorted(rel for rel, text in site_text_files() if re.search(r'href="[^"]*/place/?\?', text))
+    r.check(not pages_with_share, "no page hard-codes a shared-link URL (share URLs come from the app) %s" % pages_with_share)
+    apple = sorted(rel for rel, text in site_text_files() if rel.endswith(".html") and "apps.apple.com" in text)
+    r.check(not apple, "no App Store link anywhere until a real listing exists %s" % apple)
+
+    robots = read("robots.txt")
+    r.check(not re.search(r"^Disallow:\s*/(place|\.well-known)", robots, re.M),
+            "robots.txt lets crawlers see /place/ (so noindex is honoured) and /.well-known/")
+    r.check(SITE + SHARE_PATH not in read("sitemap.xml"), "sitemap does not list the share fallback")
+
+
+def check_association_files(r):
+    r.section(".well-known association files")
+    wk = ROOT / ".well-known"
+    r.check((ROOT / ".nojekyll").is_file(), ".nojekyll present (GitHub Pages would otherwise drop .well-known/)")
+    present = sorted(f.name for f in wk.iterdir()) if wk.is_dir() else []
+    r.check(set(present) <= {"assetlinks.json", "apple-app-site-association"},
+            ".well-known holds only the association files (got %s)" % present)
+    r.check(not (ROOT / "apple-app-site-association").exists() and not (wk / "apple-app-site-association.json").exists(),
+            "no Apple association file at a legacy/alternate path")
+
+    # ---- Android Digital Asset Links ----
+    f = wk / "assetlinks.json"
+    if not r.check(f.is_file(), "/.well-known/assetlinks.json exists"):
+        return
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except ValueError as e:
+        r.check(False, "assetlinks.json parses (%s)" % e)
+        return
+    r.check(isinstance(data, list) and len(data) == 1, "assetlinks.json is a list with one statement")
+    st = data[0] if isinstance(data, list) and data else {}
+    target = st.get("target") or {}
+    r.check(st.get("relation") == ["delegate_permission/common.handle_all_urls"], "assetlinks relation is handle_all_urls only")
+    r.check(target.get("namespace") == "android_app" and target.get("package_name") == APP_PACKAGE,
+            "assetlinks targets android_app %s only (got %s)" % (APP_PACKAGE, target.get("package_name")))
+    r.check(set(st) == {"relation", "target"} and set(target) == {"namespace", "package_name", "sha256_cert_fingerprints"},
+            "assetlinks has no extra fields (got %s / %s)" % (sorted(st), sorted(target)))
+    fps = target.get("sha256_cert_fingerprints") or []
+    for fp in fps:
+        r.check(re.fullmatch(r"(?:[0-9A-F]{2}:){31}[0-9A-F]{2}", fp or "") is not None, "fingerprint %s is 32 upper-case hex bytes" % fp)
+        r.check(fp not in KNOWN_BAD_FINGERPRINTS and not PLACEHOLDER_WORDS.search(fp) and len(set(fp.replace(":", ""))) > 4,
+                "fingerprint %s is not an example/placeholder value" % fp)
+        r.check(not (fp.startswith(UPLOAD_KEY_PREFIX) and fp.endswith(UPLOAD_KEY_SUFFIX)), "fingerprint %s is not the upload key" % fp)
+    r.check(fps == [PLAY_SIGNING_SHA256], "assetlinks lists exactly the Play App Signing certificate from the contract")
+
+    # ---- Apple Universal Links: deploy only with real values; until then a template outside .well-known ----
+    tpl = ROOT / "association" / "apple-app-site-association.template.json"
+    aasa = wk / "apple-app-site-association"
+    for label, file, live in (("template", tpl, False), ("live AASA", aasa, True)):
+        if not file.is_file():
+            # the live file stays absent until the real Team ID exists (contract section 7); the template must exist
+            r.check(live, "live AASA absent (no Team ID yet)" if live else "Apple template exists")
+            continue
+        try:
+            doc = json.loads(file.read_text(encoding="utf-8"))
+        except ValueError as e:
+            r.check(False, "Apple %s parses (%s)" % (label, e))
+            continue
+        details = (doc.get("applinks") or {}).get("details") or []
+        r.check(set(doc) == {"applinks"} and len(details) >= 1, "Apple %s declares applinks only" % label)
+        for d in details:
+            for app_id in d.get("appIDs") or []:
+                team, _, bundle = app_id.partition(".")
+                r.check(bundle == APP_PACKAGE, "Apple %s appID bundle is %s (got %s)" % (label, APP_PACKAGE, app_id))
+                if live:
+                    r.check(re.fullmatch(r"[A-Z0-9]{10}", team) is not None and team not in PLACEHOLDER_TEAM_IDS
+                            and len(set(team)) > 3, "live AASA Team ID %r is real-looking, not a placeholder" % team)
+                else:
+                    r.check(team == "<TEAM_ID>", "Apple template keeps the unmistakable <TEAM_ID> placeholder")
+            comps = d.get("components") or []
+            paths = sorted({c.get("/") for c in comps})
+            r.check(paths == ["/place", "/place/"] and all(not c.get("exclude") for c in comps),
+                    "Apple %s claims only /place and /place/ (got %s)" % (label, paths))
+            r.check(all((c.get("?") or {}).get("id") == "?*" for c in comps), "Apple %s requires ?id= on every component" % label)
+            r.check("paths" not in d, "Apple %s uses components, not legacy wildcard paths" % label)
+
+
 def run_nu_validator(r):
     jar = os.environ.get("VNU_JAR") or str(ROOT / "tests" / "vnu.jar")
     if not os.path.isfile(jar) or not shutil.which("java"):
@@ -518,6 +670,8 @@ def static_checks(r):
         if page.get("redirect"):
             r.check("<noscript>" in text and 'http-equiv="refresh"' in text, "%s: redirect page has a no-JS fallback" % page["path"])
     check_sitemap_and_robots(r)
+    check_share_link(r)
+    check_association_files(r)
     check_repo_hygiene(r)
     run_nu_validator(r)
 
@@ -723,6 +877,10 @@ class Chrome:
         for t in ("keyDown", "keyUp"):
             self.send("Input.dispatchKeyEvent", {"type": t, "key": "Tab", "code": "Tab", "windowsVirtualKeyCode": 9})
 
+    def set_user_agent(self, user_agent, accept_language="en-US,en"):
+        """Also drives navigator.language(s), which the share page uses to pick EN/HE."""
+        self.send("Emulation.setUserAgentOverride", {"userAgent": user_agent, "acceptLanguage": accept_language})
+
     def set_javascript(self, enabled):
         self.send("Emulation.setScriptExecutionDisabled", {"value": not enabled})
 
@@ -742,6 +900,241 @@ class Chrome:
             except OSError:
                 pass
         self.stderr.close()
+
+
+ANDROID_UA = "Mozilla/5.0 (Linux; Android 14; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36"
+IPHONE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"
+DESKTOP_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+SHARE_ID = "9qrxnqnI6TuYgvUfLTUK"      # contract example ids
+SHARE_DEAL = "3f9a1c07"
+MARKER_ID = "Zq7Mk_x-9"                 # valid id that must never appear in the rendered page
+XSS = '"><img src=x onerror="window.__xss=1"><script>window.__xss=1</script>'
+
+
+def intent_for(place_id, deal=None):
+    query = "?id=" + place_id + ("&deal=" + deal if deal else "")
+    return ("intent://zolo-deals.com%s%s#Intent;scheme=https;action=android.intent.action.VIEW;package=%s;S.browser_fallback_url=%s;end"
+            % (SHARE_PATH, query, APP_PACKAGE, urllib.parse.quote(PLAY_URL, safe="-_.!~*'()")))
+
+
+_q = urllib.parse.quote
+SHARE_CASES = [
+    # (what, query appended to /place/, expected data-share state, (id, deal) the Android intent must carry)
+    ("place link", "?id=" + SHARE_ID, "place", (SHARE_ID, None)),
+    ("deal link", "?id=%s&deal=%s" % (SHARE_ID, SHARE_DEAL), "deal", (SHARE_ID, SHARE_DEAL)),
+    ("any order; tracking params and fragment ignored", "?utm_source=whatsapp&deal=%s&fbclid=AbC&id=%s#top" % (SHARE_DEAL, SHARE_ID), "deal", (SHARE_ID, SHARE_DEAL)),
+    ("percent-encoded ASCII is decoded before validation", "?id=%61b%2Dc_9", "place", ("ab-c_9", None)),
+    ("64-character id", "?id=" + "a" * 64, "place", ("a" * 64, None)),
+    ("65-character id", "?id=" + "a" * 65, "invalid", None),
+    ("no query", "", "invalid", None),
+    ("empty id", "?id=", "invalid", None),
+    ("id without a value", "?id", "invalid", None),
+    ("parameter names are case-sensitive", "?ID=" + SHARE_ID, "invalid", None),
+    ("repeated id", "?id=abc&id=abc", "invalid", None),
+    ("empty deal", "?id=abc&deal=", "invalid", None),
+    ("upper-case deal", "?id=abc&deal=3F9A1C07", "invalid", None),
+    ("7-character deal", "?id=abc&deal=3f9a1c0", "invalid", None),
+    ("repeated deal", "?id=abc&deal=%s&deal=%s" % (SHARE_DEAL, SHARE_DEAL), "invalid", None),
+    ("malformed percent-encoding in id", "?id=%zz", "invalid", None),
+    ("malformed percent-encoding in another parameter", "?id=abc&utm_source=%E0%A4%A", "invalid", None),
+    ("encoded path separator", "?id=ab%2Fcd", "invalid", None),
+    ("path traversal", "?id=..%2F..%2Fetc%2Fpasswd", "invalid", None),
+    ("encoded query separators stay inside the value", "?id=abc%26deal%3D" + SHARE_DEAL, "invalid", None),
+    ("plus decodes to a space", "?id=abc+def", "invalid", None),
+    ("non-ASCII id", "?id=" + _q("קפה"), "invalid", None),
+    ("full-width look-alike id", "?id=" + _q("ａｂｃ"), "invalid", None),
+    ("HTML/script injection in id", "?id=" + _q(XSS, safe=""), "invalid", None),
+    ("injection in an unknown parameter", "?id=abc&name=" + _q(XSS, safe=""), "place", ("abc", None)),
+    ("redirect-style parameters", "?id=abc&redirect=https%3A%2F%2Fevil.example%2F&next=//evil.example&url=javascript:alert(1)&return_to=https://evil.example", "place", ("abc", None)),
+    ("environment/collection parameters", "?id=abc&env=dev&flavor=devtest&project=zolo-dev&collection=places_devtest&host=evil.example", "place", ("abc", None)),
+    ("injection in the fragment", "?id=abc#" + _q(XSS, safe=""), "place", ("abc", None)),
+    ("URL longer than 2048 characters", "?id=abc&pad=" + "x" * 2100, "invalid", None),
+    ("the id itself is never rendered", "?id=%s&deal=%s" % (MARKER_ID, SHARE_DEAL), "deal", (MARKER_ID, SHARE_DEAL)),
+]
+
+SHARE_INFO_JS = r"""(() => {
+  const vis = el => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+  const all = s => Array.from(document.querySelectorAll(s)).filter(vis);
+  const html = document.documentElement;
+  const clone = html.cloneNode(true);
+  clone.querySelectorAll("[data-open-app]").forEach(a => a.removeAttribute("href"));
+  const markup = clone.outerHTML;
+  return {
+    state: html.getAttribute("data-share"), lang: html.lang, dir: html.dir, title: document.title, path: location.pathname,
+    h1: all("h1").map(h => h.innerText.trim()),
+    h1Variant: all("h1 [data-share-v]").map(e => e.getAttribute("data-share-v")),
+    notice: all(".notice").length, hint: all(".hint").length, lead: all(".lead").length,
+    open: all("[data-open-app]").map(a => a.getAttribute("href")),
+    play: all("a[data-cta]").map(a => { const b = a.getBoundingClientRect(); return { href: a.getAttribute("href"), label: a.getAttribute("aria-label"),
+      badge: a.querySelector("img").getAttribute("src"), inFirstScreen: b.width > 0 && b.height > 0 && b.bottom <= innerHeight }; }),
+    home: all("a.home").map(a => a.getAttribute("href")),
+    langToggles: all("[data-share-lang]").map(b => b.textContent.trim()),
+    themeLabel: document.querySelector("[data-theme-btn]") ? document.querySelector("[data-theme-btn]").getAttribute("aria-label") : null,
+    appStore: !!document.querySelector('a[href*="apps.apple.com"]'),
+    brokenImages: Array.from(document.images).filter(i => vis(i) && i.complete && i.naturalWidth === 0).map(i => i.getAttribute("src")),
+    injected: window.__xss === 1 || !!document.querySelector("[onerror]"),
+    leaked: ["evil.example", "javascript:", "onerror", "__xss", "devtest", "zolo-dev", "%MARKER%"].filter(t => markup.includes(t)),
+  };
+})()""".replace("%MARKER%", MARKER_ID)
+
+FOCUS_NAME_JS = r"""(a => a ? (a.dataset.cta ? "cta:" + a.dataset.cta : a.hasAttribute("data-theme-btn") ? "theme"
+  : a.hasAttribute("data-share-lang") ? "lang" : a.hasAttribute("data-open-app") ? "open" : a.className || a.tagName.toLowerCase()) : null)(document.activeElement)"""
+
+
+def share_checks(r, browser, origin):
+    """The share-link fallback, driven like a recipient's phone: Android and iPhone, EN and HE, valid,
+    malformed and hostile links, keyboard, no JavaScript, and nested paths through the GitHub-Pages-like 404."""
+    r.section("browser: share-link fallback " + SHARE_PATH)
+    base = origin + SHARE_PATH
+
+    def load(query="", ua=ANDROID_UA, accept="en-US,en", storage=None):
+        browser.set_user_agent(ua, accept)
+        # prepare storage on another same-origin document (re-navigating to a URL with a #fragment
+        # would be a same-document navigation without a load event)
+        browser.navigate(origin + "/robots.txt")
+        browser.evaluate("(() => { localStorage.clear(); %s return 0; })()"
+                         % ("localStorage.setItem('preferredLang', %s);" % json.dumps(storage) if storage else ""))
+        browser.drain()
+        browser.navigate(base + query)
+        return browser.evaluate(SHARE_INFO_JS)
+
+    browser.set_width(390)
+    for what, query, state, carried in SHARE_CASES:
+        label = "%s %s" % (SHARE_PATH, what)
+        info = load(query)
+        problems = runtime_problems(browser.drain(), origin)
+        r.check(info["state"] == state, "%s: link is treated as %s (got %s)" % (label, state, info["state"]))
+        variant = "generic" if state == "invalid" else state
+        r.check(len(info["h1"]) == 1 and info["h1Variant"] == [variant] and not is_hebrew(info["h1"][0]),
+                "%s: one visible English <h1>, the %s message (got %s %s)" % (label, variant, info["h1"], info["h1Variant"]))
+        r.check(info["notice"] == (1 if state == "invalid" else 0) and info["hint"] == (0 if state == "invalid" else 1) and info["lead"] == 1,
+                "%s: explanatory copy matches the state (notice %d, hint %d, lead %d)" % (label, info["notice"], info["hint"], info["lead"]))
+        r.check(len(info["play"]) == 1 and info["play"][0]["href"] == PLAY_URL and info["play"][0]["inFirstScreen"],
+                "%s: the Google Play CTA is visible in the first screen (%s)" % (label, info["play"]))
+        expected_open = [intent_for(*carried)] if carried else []
+        r.check(info["open"] == expected_open, "%s: Android 'Open in Zolo' is %s (got %s)" % (label, expected_open or "hidden", info["open"]))
+        r.check(info["home"] == ["/en/"], "%s: never a dead end: home link shown" % label)
+        r.check(not info["injected"] and not info["leaked"], "%s: nothing from the URL reached the page (injected %s, leaked %s)" % (label, info["injected"], info["leaked"]))
+        if "redirect" in what:
+            time.sleep(0.3)
+        r.check(browser.evaluate("location.pathname") == SHARE_PATH, "%s: the page did not navigate anywhere" % label)
+        r.check(not info["brokenImages"] and not problems, "%s: loads cleanly %s %s" % (label, info["brokenImages"], problems))
+
+    deal_q = "?id=%s&deal=%s" % (SHARE_ID, SHARE_DEAL)
+    for name, ua in (("iPhone", IPHONE_UA), ("desktop", DESKTOP_UA)):
+        info = load(deal_q, ua=ua)
+        r.check(info["state"] == "deal" and not info["open"] and len(info["play"]) == 1 and not info["appStore"],
+                "%s on %s: no 'Open in Zolo' (Android only), Google Play CTA, no App Store link (%s)" % (SHARE_PATH, name, info["open"]))
+
+    # ---- language: saved preference, then browser language, then English (as the redirect pages) ----
+    he = load(deal_q, accept="he-IL,he;q=0.9,en;q=0.8")
+    r.check(he["lang"] == "he" and he["dir"] == "rtl" and is_hebrew(he["title"]), "%s: Hebrew browser gets lang=he dir=rtl and a Hebrew title (%s)" % (SHARE_PATH, he["title"]))
+    r.check(len(he["h1"]) == 1 and is_hebrew(he["h1"][0]) and he["h1Variant"] == ["deal"], "%s: Hebrew browser sees one Hebrew <h1> (%s)" % (SHARE_PATH, he["h1"]))
+    r.check(len(he["play"]) == 1 and is_hebrew(he["play"][0]["label"]) and "Hebrew" in he["play"][0]["badge"] and he["play"][0]["href"] == PLAY_URL,
+            "%s: Hebrew Google Play badge and label (%s)" % (SHARE_PATH, he["play"]))
+    r.check(he["open"] == [intent_for(SHARE_ID, SHARE_DEAL)] and he["home"] == ["/he/"] and he["langToggles"] == ["EN"],
+            "%s: Hebrew page keeps the same intent, links home to /he/, offers EN (%s %s)" % (SHARE_PATH, he["home"], he["langToggles"]))
+    r.check(bool(he["themeLabel"]) and is_hebrew(he["themeLabel"]), "%s: Hebrew theme label (%r)" % (SHARE_PATH, he["themeLabel"]))
+    saved = load(deal_q, accept="he-IL,he", storage="en")
+    r.check(saved["lang"] == "en" and not is_hebrew(saved["h1"][0]), "%s: a saved preferredLang=en beats a Hebrew browser" % SHARE_PATH)
+    en = load(deal_q, accept="fr-FR,fr")
+    r.check(en["lang"] == "en" and en["dir"] == "ltr" and en["langToggles"] == ["עב"], "%s: other languages fall back to English" % SHARE_PATH)
+
+    # in-page toggle: same URL, preference saved, labels follow
+    load(deal_q, accept="he-IL,he")
+    href_before = browser.evaluate("location.href")
+    browser.evaluate("document.querySelectorAll('[data-share-lang]').forEach(b => { if (b.getClientRects().length) b.click(); }); 0")
+    after = browser.evaluate(SHARE_INFO_JS)
+    state = browser.evaluate("({ href: location.href, pref: localStorage.getItem('preferredLang'), focus: %s })" % FOCUS_NAME_JS)
+    r.check(after["lang"] == "en" and after["dir"] == "ltr" and not is_hebrew(after["h1"][0]) and not is_hebrew(after["title"]),
+            "%s: language toggle switches the page to English in place" % SHARE_PATH)
+    r.check(state["href"] == href_before and state["pref"] == "en", "%s: toggle keeps the exact shared URL and saves the preference (%s)" % (SHARE_PATH, state))
+    r.check(after["themeLabel"] == "Theme: system" and state["focus"] == "lang", "%s: theme label follows the language; focus stays on the toggle (%r, %r)" % (SHARE_PATH, after["themeLabel"], state["focus"]))
+    r.check(not runtime_problems(browser.drain(), origin), "%s: language toggle raises no errors" % SHARE_PATH)
+
+    # ---- layout, tracking and theme in both languages ----
+    for lang, accept in (("en", "en-US,en"), ("he", "he-IL,he")):
+        for query in (deal_q, "?id=%zz"):
+            load(query, accept=accept)
+            for w in WIDTHS:
+                browser.set_width(w)
+                o = browser.evaluate(OVERFLOW_JS)
+                r.check(o["scrollWidth"] <= o["clientWidth"] and not o["offenders"],
+                        "%s%s [%s]: no horizontal overflow at %dpx (%s)" % (SHARE_PATH, query[:12], lang, w, o["offenders"]))
+            browser.set_width(390)
+        load(deal_q, accept=accept)
+        clicks = browser.evaluate(CLICK_JS)
+        r.check(len(clicks["clicks"]) == 2 and all(c["fired"] == 1 and (c["payload"] or [None, None])[:2] == ["event", "install_click"]
+                and c["payload"][2].get("store") == "google_play" and c["payload"][2].get("placement") == "share"
+                and c["payload"][2].get("language") == lang and c["payload"][2].get("transport_type") == "beacon" for c in clicks["clicks"]),
+                "%s [%s]: Play CTA emits install_click store=google_play placement=share language=%s (%s)" % (SHARE_PATH, lang, lang, clicks["clicks"]))
+        r.check(clicks["noGtag"] == {"fired": 0} and browser.evaluate("location.pathname") == SHARE_PATH, "%s [%s]: tracking is silent without gtag" % (SHARE_PATH, lang))
+        theme = browser.evaluate(THEME_JS) or []
+        r.check([t["mode"] for t in theme] == ["dark", "light", "system"] and all(is_hebrew(t["label"]) == (lang == "he") for t in theme)
+                and [t["themeColor"] for t in theme][:2] == [["#000000", "#000000"], ["#FFFFFF", "#FFFFFF"]],
+                "%s [%s]: theme cycles with localized labels and theme-color (%s)" % (SHARE_PATH, lang, theme))
+        r.check(not runtime_problems(browser.drain(), origin), "%s [%s]: no runtime problems after interactions" % (SHARE_PATH, lang))
+
+    # ---- keyboard ----
+    load(deal_q)   # fresh document, focus at the start
+    order = []
+    for _ in range(8):
+        browser.press_tab()
+        order.append(browser.evaluate(FOCUS_NAME_JS))
+    wanted = ["theme", "lang", "open", "cta:share"]
+    idx = [order.index(x) if x in order else -1 for x in wanted]
+    r.check(order[0] == "skip-link" and all(i >= 0 for i in idx) and idx == sorted(idx),
+            "%s: Tab order is skip link, theme, language, Open in Zolo, Google Play (got %s)" % (SHARE_PATH, order))
+    rings = browser.evaluate("['[data-open-app]:not([hidden])', 'a[data-cta=share]'].map(s => { const el = Array.from(document.querySelectorAll(s)).find(e => e.getClientRects().length); el.focus(); const cs = getComputedStyle(el); return cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) >= 2; })")
+    r.check(rings == [True, True], "%s: focused Open in Zolo and Google Play show an outline (%s)" % (SHARE_PATH, rings))
+
+    # ---- without JavaScript: English, generic message, install link still works ----
+    browser.set_javascript(False)
+    browser.navigate(base + deal_q)
+    nojs = browser.evaluate(SHARE_INFO_JS)
+    browser.set_javascript(True)
+    r.check(nojs["state"] is None and nojs["h1Variant"] == ["generic"] and len(nojs["h1"]) == 1 and not is_hebrew(nojs["h1"][0]),
+            "%s: without JavaScript one English generic <h1> (%s)" % (SHARE_PATH, nojs["h1"]))
+    r.check(len(nojs["play"]) == 1 and nojs["play"][0]["href"] == PLAY_URL and nojs["play"][0]["inFirstScreen"] and not nojs["open"] and not nojs["langToggles"],
+            "%s: without JavaScript the Google Play link is in the first screen; no inert buttons (%s)" % (SHARE_PATH, nojs))
+    browser.drain()
+
+    # ---- other paths: never a dead end, assets resolve at any depth ----
+    info = load("", ua=ANDROID_UA)
+    browser.navigate(origin + "/place/index.html?id=" + SHARE_ID)
+    alias = browser.evaluate(SHARE_INFO_JS)
+    r.check(alias["state"] == "invalid" and not alias["open"] and len(alias["play"]) == 1,
+            "/place/index.html?id=...: not the contract path, so the generic page with Google Play (%s)" % alias["state"])
+    browser.navigate(origin + "/place" + deal_q)   # the local server, like GitHub Pages, adds the slash with a 301
+    slash = browser.evaluate(SHARE_INFO_JS)
+    r.check(slash["path"] == SHARE_PATH and slash["state"] == "deal" and slash["open"] == [intent_for(SHARE_ID, SHARE_DEAL)],
+            "/place?id=...&deal=...: the slash redirect keeps the query (%s %s)" % (slash["path"], slash["state"]))
+    browser.drain()
+    for bad in ("/place/abc", "/place/abc/def/", "/place/%2e%2e/%2e%2e/etc/passwd", "/place/index.html/x", "/place/" + SHARE_ID + "/" + SHARE_DEAL):
+        browser.navigate(origin + bad + "?id=" + SHARE_ID)
+        events = browser.drain()
+        docs = [m["params"]["response"] for m in events
+                if m["method"] == "Network.responseReceived" and m["params"].get("type") == "Document"]
+        status = [d["status"] for d in docs]
+        # the document's own 404 is the point; any other failed request (CSS, images, JS) still counts
+        doc_urls = {d["url"] for d in docs}
+        events = [m for m in events if not (m["method"] == "Network.responseReceived" and m["params"]["response"]["url"] in doc_urls)
+                  and not (m["method"] == "Log.entryAdded" and m["params"]["entry"].get("url") in doc_urls)]
+        page = browser.evaluate("({ h1: (document.querySelector('h1') || {}).textContent, css: getComputedStyle(document.querySelector('.btn.primary')).backgroundColor,"
+                                " ctas: Array.from(document.querySelectorAll('a[data-cta]')).map(a => a.getAttribute('href')),"
+                                " broken: Array.from(document.images).filter(i => i.complete && i.naturalWidth === 0).map(i => i.getAttribute('src')) })")
+        problems = runtime_problems(events, origin)
+        r.check(status[:1] == [404] and page["h1"] == "Page not found" and page["ctas"] and set(page["ctas"]) == {PLAY_URL},
+                "%s: the branded 404 with Google Play (status %s, %s)" % (bad, status, page["h1"]))
+        r.check(page["css"] not in ("", "rgba(0, 0, 0, 0)") and not page["broken"] and not problems,
+                "%s: styles and images load at this depth (%s %s %s)" % (bad, page["css"], page["broken"], problems))
+
+    # ---- Digital Asset Links as the verifier fetches it ----
+    with urllib.request.urlopen(origin + "/.well-known/assetlinks.json", timeout=5) as resp:
+        body = resp.read()
+        r.check(resp.status == 200 and resp.geturl() == origin + "/.well-known/assetlinks.json"
+                and resp.headers.get_content_type() == "application/json" and json.loads(body.decode("utf-8")) == json.loads(read(".well-known/assetlinks.json")),
+                "/.well-known/assetlinks.json is served as application/json with HTTP 200 and no redirect (locally)")
 
 
 def find_chrome():
@@ -801,6 +1194,19 @@ def browser_checks(r):
         def log_message(self, *a):
             pass
 
+        def send_error(self, code, message=None, explain=None):
+            # Like GitHub Pages: every missing path, however deep, gets 404.html with status 404
+            page = ROOT / "404.html"
+            if code != 404 or not page.is_file():
+                return super().send_error(code, message, explain)
+            body = page.read_bytes()
+            self.send_response(404)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if self.command != "HEAD":
+                self.wfile.write(body)
+
     class QuietServer(ThreadingHTTPServer):
         def handle_error(self, request, client_address):
             pass  # Chrome drops connections mid-response when it navigates; not a site problem
@@ -822,7 +1228,7 @@ def browser_checks(r):
         with urllib.request.urlopen(origin + "/robots.txt", timeout=5) as resp:   # proves serve_forever is running
             r.check(resp.status == 200, "local server serves the repository")
         browser.open_page()
-        pages = [p for p in ALL_PAGES if not p.get("not_found")] + [NOT_FOUND_PAGE]
+        pages = [p for p in ALL_PAGES if not p.get("not_found") and not p.get("share")] + [NOT_FOUND_PAGE]
         for page in pages:
             p = current = page["path"]
             browser.set_width(390)
@@ -926,6 +1332,9 @@ def browser_checks(r):
                 browser.set_javascript(True)
                 r.check(nojs == {"h1": True, "cta": True}, "%s: without JavaScript the headline and hero install link are visible in the first screen (%s)" % (p, nojs))
                 browser.drain()
+
+        current = SHARE_PATH
+        share_checks(r, browser, origin)
 
     except Exception as e:  # keep the report useful when the browser layer itself breaks
         r.check(False, "browser checks ran to completion (while testing %s: %s: %s)" % (current, type(e).__name__, e))

@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.zolo.deals",
+      "sha256_cert_fingerprints": [
+        "A8:ED:91:81:D9:70:C6:E2:A9:52:99:83:F9:C5:AD:C9:61:A3:15:7C:71:FF:0F:E1:A8:B1:A5:7F:BF:8C:CC:EE"
+      ]
+    }
+  }
+]
