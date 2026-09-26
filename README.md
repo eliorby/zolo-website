@@ -24,6 +24,17 @@ It is `noindex`, canonical `/place/`, not in the sitemap. Paths below `/place/` 
   `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://zolo-deals.com&relation=delegate_permission/common.handle_all_urls`,
   and that `https://zolo-deals.com/place?id=x` redirects to `/place/?id=x` with the query intact.
 
+## Local preview
+
+```bash
+make serve          # http://127.0.0.1:8000/   (another port: make serve PORT=8001)
+```
+
+Serves the repo like GitHub Pages does: any missing path (`/foo/bar`, `/place/x`, a missing image)
+gets the branded `404.html` with HTTP status 404, and `/place?id=x` redirects to `/place/?id=x`.
+Use it instead of `python3 -m http.server`, which shows Python's generic "Error response" page.
+Open the printed `127.0.0.1` URL; `localhost` can reach a different server still running on `::1`.
+
 ## Before deploying
 
 ```bash

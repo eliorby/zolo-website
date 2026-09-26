@@ -10,6 +10,8 @@ asset references, asset budgets, accessibility basics). Browser checks serve the
 on 127.0.0.1, load the important pages in headless Chrome through a same-origin runner
 page, and verify runtime behaviour: JS errors, failed requests, broken images,
 horizontal overflow at several widths, install-CTA tracking, theme and language toggles.
+The local server is tests/pages_server.py (also `make serve`); it is checked to answer every
+missing path with the branded 404.html and HTTP 404, like GitHub Pages.
 External hosts are unresolvable during the browser run, so nothing reaches GA.
 
 Only the Python standard library and a Chrome/Chromium binary are needed
@@ -18,6 +20,7 @@ is available (VNU_JAR=/path/to/vnu.jar), it is run as an extra static check.
 Exit status is non-zero when any check fails.
 """
 import argparse
+import http.client
 import json
 import os
 import re
@@ -34,8 +37,9 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta
 from html.parser import HTMLParser
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+
+from pages_server import PagesHandler, PagesServer   # tests/pages_server.py: the GitHub-Pages-like local server
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = "https://zolo-deals.com"
@@ -981,6 +985,27 @@ FOCUS_NAME_JS = r"""(a => a ? (a.dataset.cta ? "cta:" + a.dataset.cta : a.hasAtt
   : a.hasAttribute("data-share-lang") ? "lang" : a.hasAttribute("data-open-app") ? "open" : a.className || a.tagName.toLowerCase()) : null)(document.activeElement)"""
 
 
+def check_branded_404(r, browser, origin, target):
+    """A document navigation to a missing path shows the branded 404.html with HTTP 404, fully styled."""
+    browser.navigate(origin + target)
+    events = browser.drain()
+    docs = [m["params"]["response"] for m in events
+            if m["method"] == "Network.responseReceived" and m["params"].get("type") == "Document"]
+    status = [d["status"] for d in docs]
+    # the document's own 404 is the point; any other failed request (CSS, images, JS) still counts
+    doc_urls = {d["url"] for d in docs}
+    events = [m for m in events if not (m["method"] == "Network.responseReceived" and m["params"]["response"]["url"] in doc_urls)
+              and not (m["method"] == "Log.entryAdded" and (m["params"]["entry"].get("url") or "").split("#")[0] in doc_urls)]
+    page = browser.evaluate("({ h1: (document.querySelector('h1') || {}).textContent, css: getComputedStyle(document.querySelector('.btn.primary')).backgroundColor,"
+                            " ctas: Array.from(document.querySelectorAll('a[data-cta]')).map(a => a.getAttribute('href')),"
+                            " broken: Array.from(document.images).filter(i => i.complete && i.naturalWidth === 0).map(i => i.getAttribute('src')) })")
+    problems = runtime_problems(events, origin)
+    r.check(status[:1] == [404] and page["h1"] == "Page not found" and page["ctas"] and set(page["ctas"]) == {PLAY_URL},
+            "%s: the branded 404 with Google Play (status %s, %s)" % (target, status, page["h1"]))
+    r.check(page["css"] not in ("", "rgba(0, 0, 0, 0)") and not page["broken"] and not problems,
+            "%s: styles and images load at this depth (%s %s %s)" % (target, page["css"], page["broken"], problems))
+
+
 def share_checks(r, browser, origin):
     """The share-link fallback, driven like a recipient's phone: Android and iPhone, EN and HE, valid,
     malformed and hostile links, keyboard, no JavaScript, and nested paths through the GitHub-Pages-like 404."""
@@ -1111,23 +1136,7 @@ def share_checks(r, browser, origin):
             "/place?id=...&deal=...: the slash redirect keeps the query (%s %s)" % (slash["path"], slash["state"]))
     browser.drain()
     for bad in ("/place/abc", "/place/abc/def/", "/place/%2e%2e/%2e%2e/etc/passwd", "/place/index.html/x", "/place/" + SHARE_ID + "/" + SHARE_DEAL):
-        browser.navigate(origin + bad + "?id=" + SHARE_ID)
-        events = browser.drain()
-        docs = [m["params"]["response"] for m in events
-                if m["method"] == "Network.responseReceived" and m["params"].get("type") == "Document"]
-        status = [d["status"] for d in docs]
-        # the document's own 404 is the point; any other failed request (CSS, images, JS) still counts
-        doc_urls = {d["url"] for d in docs}
-        events = [m for m in events if not (m["method"] == "Network.responseReceived" and m["params"]["response"]["url"] in doc_urls)
-                  and not (m["method"] == "Log.entryAdded" and m["params"]["entry"].get("url") in doc_urls)]
-        page = browser.evaluate("({ h1: (document.querySelector('h1') || {}).textContent, css: getComputedStyle(document.querySelector('.btn.primary')).backgroundColor,"
-                                " ctas: Array.from(document.querySelectorAll('a[data-cta]')).map(a => a.getAttribute('href')),"
-                                " broken: Array.from(document.images).filter(i => i.complete && i.naturalWidth === 0).map(i => i.getAttribute('src')) })")
-        problems = runtime_problems(events, origin)
-        r.check(status[:1] == [404] and page["h1"] == "Page not found" and page["ctas"] and set(page["ctas"]) == {PLAY_URL},
-                "%s: the branded 404 with Google Play (status %s, %s)" % (bad, status, page["h1"]))
-        r.check(page["css"] not in ("", "rgba(0, 0, 0, 0)") and not page["broken"] and not problems,
-                "%s: styles and images load at this depth (%s %s %s)" % (bad, page["css"], page["broken"], problems))
+        check_branded_404(r, browser, origin, bad + "?id=" + SHARE_ID)
 
     # ---- Digital Asset Links as the verifier fetches it ----
     with urllib.request.urlopen(origin + "/.well-known/assetlinks.json", timeout=5) as resp:
@@ -1180,6 +1189,89 @@ def runtime_problems(events, origin):
     return problems
 
 
+# Paths GitHub Pages answers with 404.html and status 404 (production verified with curl on 2026-09-26)
+MISSING_PATHS = ("/does-not-exist", "/foo/bar/baz", "/en/does-not-exist", "/he/does-not-exist/", "/place/x",
+                 "/place/abc/def", "/does-not-exist?utm_source=check&id=abc", "/missing.txt", "/en/privacy/missing.html",
+                 "/assets/common/missing.webp", "/robots.txt/", "/assets/", "/.well-known/")
+
+
+def http_get(origin, target, method="GET"):
+    """One request, redirects not followed: (status, headers, body)."""
+    host, port = origin.split("//")[1].split(":")
+    conn = http.client.HTTPConnection(host, int(port), timeout=5)
+    try:
+        conn.request(method, target)
+        resp = conn.getresponse()
+        return resp.status, resp.headers, resp.read()
+    finally:
+        conn.close()
+
+
+def server_checks(r):
+    """tests/pages_server.py (make serve, and the browser checks) must behave like GitHub Pages:
+    the branded 404 with status 404 for any missing path, real files and the slash redirect intact."""
+    r.section("local server (GitHub-Pages-like, make serve)")
+    not_found = read("404.html").encode("utf-8")
+
+    class Quiet(PagesHandler):
+        def log_message(self, *a):
+            pass
+
+    server = PagesServer(("127.0.0.1", 0), Quiet)
+    origin = "http://127.0.0.1:%d" % server.server_address[1]
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        for target in MISSING_PATHS:
+            status, headers, body = http_get(origin, target)
+            r.check(status == 404 and body == not_found and headers.get_content_type() == "text/html" and not headers.get("Location"),
+                    "%s: the branded 404.html with HTTP 404, no redirect (got %s, %d bytes)" % (target, status, len(body)))
+        status, headers, body = http_get(origin, "/does-not-exist", "HEAD")
+        r.check(status == 404 and not body, "HEAD /does-not-exist: 404 without a body (got %s)" % status)
+
+        found = {"/": "index.html", "/en/": "en/index.html", "/he/privacy/": "he/privacy/index.html", "/404.html": "404.html",
+                 SHARE_PATH: "place/index.html", SHARE_PATH + "?id=%s&deal=%s" % (SHARE_ID, SHARE_DEAL): "place/index.html",
+                 "/robots.txt": "robots.txt", "/sitemap.xml": "sitemap.xml", "/.well-known/assetlinks.json": ".well-known/assetlinks.json",
+                 "/assets/common/site.css": "assets/common/site.css", "/assets/common/icon_zolo_96.webp": "assets/common/icon_zolo_96.webp"}
+        types = {".txt": "text/plain", ".xml": "application/xml", ".json": "application/json", ".css": "text/css", ".webp": "image/webp"}
+        for target, rel in found.items():
+            status, headers, body = http_get(origin, target)
+            want = types.get(Path(rel).suffix, "text/html")
+            r.check(status == 200 and body == (ROOT / rel).read_bytes() and headers.get_content_type() == want,
+                    "%s: 200 %s with %s (got %s %s)" % (target, want, rel, status, headers.get_content_type()))
+
+        for target, location in (("/place?id=%s&deal=%s" % (SHARE_ID, SHARE_DEAL), "/place/?id=%s&deal=%s" % (SHARE_ID, SHARE_DEAL)),
+                                 ("/place", "/place/"), ("/en", "/en/"), ("/he/terms?x=1", "/he/terms/?x=1")):
+            status, headers, _ = http_get(origin, target)
+            r.check(status == 301 and headers.get("Location") == location,
+                    "%s: 301 to %s, query intact (got %s %s)" % (target, location, status, headers.get("Location")))
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    # `make serve` itself: starts, prints its URL, serves the branded 404, stops cleanly on Ctrl-C
+    proc = subprocess.Popen([sys.executable, str(ROOT / "tests/pages_server.py"), "0"],
+                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    try:
+        ready, _, _ = select.select([proc.stdout], [], [], 10)
+        line = proc.stdout.readline().decode("utf-8", "replace") if ready else ""
+        m = re.search(r"http://127\.0\.0\.1:(\d+)/", line)
+        r.check(bool(m), "pages_server.py announces its URL on startup (%r)" % line.strip())
+        if m:
+            status, _, body = http_get("http://127.0.0.1:" + m.group(1), "/place/abc/def?id=x")
+            r.check(status == 404 and body == not_found, "pages_server.py serves the branded 404 with status 404 (got %s)" % status)
+        proc.send_signal(signal.SIGINT)
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            pass
+        r.check(proc.returncode == 0, "pages_server.py exits cleanly on Ctrl-C (status %s)" % proc.returncode)
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait()
+        proc.stdout.close()
+
+
 def browser_checks(r):
     r.section("browser")
     chrome = find_chrome()
@@ -1187,33 +1279,13 @@ def browser_checks(r):
         r.check(False, "Chrome/Chromium found (set CHROME=/path/to/chrome)")
         return
 
-    class Handler(SimpleHTTPRequestHandler):
-        def __init__(self, *a, **k):
-            super().__init__(*a, directory=str(ROOT), **k)
-
+    class Handler(PagesHandler):
         def log_message(self, *a):
             pass
 
-        def send_error(self, code, message=None, explain=None):
-            # Like GitHub Pages: every missing path, however deep, gets 404.html with status 404
-            page = ROOT / "404.html"
-            if code != 404 or not page.is_file():
-                return super().send_error(code, message, explain)
-            body = page.read_bytes()
-            self.send_response(404)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            if self.command != "HEAD":
-                self.wfile.write(body)
-
-    class QuietServer(ThreadingHTTPServer):
+    class QuietServer(PagesServer):
         def handle_error(self, request, client_address):
             pass  # Chrome drops connections mid-response when it navigates; not a site problem
-
-    # Python 3.9's mimetypes lacks a few types; Chrome sniffs images but keep it explicit.
-    Handler.extensions_map.update({".webp": "image/webp", ".svg": "image/svg+xml", ".js": "text/javascript",
-                                   ".css": "text/css", ".xml": "application/xml", ".txt": "text/plain"})
 
     profile = tempfile.mkdtemp(prefix="zolo-site-check-")
     browser = None
@@ -1333,6 +1405,21 @@ def browser_checks(r):
                 r.check(nojs == {"h1": True, "cta": True}, "%s: without JavaScript the headline and hero install link are visible in the first screen (%s)" % (p, nojs))
                 browser.drain()
 
+        # ---- missing paths: the branded 404 as GitHub Pages serves it, at any depth, language prefix, query or fragment ----
+        current = "missing paths"
+        browser.set_width(390)
+        for target in ("/does-not-exist", "/foo/bar/baz", "/en/does-not-exist", "/he/does-not-exist/",
+                       "/does-not-exist?utm_source=check&id=abc", "/does-not-exist#section", "/foo/bar.html?x=1#y"):
+            check_branded_404(r, browser, origin, target)
+        # a missing asset still counts as a failed request: the 404.html body must not mask it
+        browser.navigate(origin + "/404.html")
+        browser.drain()
+        loaded = browser.evaluate("new Promise(ok => { const i = new Image(); i.onload = () => ok(true); i.onerror = () => ok(false);"
+                                  " i.src = '/assets/common/missing-check.webp'; })")
+        problems = runtime_problems(browser.drain(), origin)
+        r.check(loaded is False and any("/assets/common/missing-check.webp -> 404" in x for x in problems),
+                "a missing image fails to load and is reported as a failed request (%s %s)" % (loaded, problems))
+
         current = SHARE_PATH
         share_checks(r, browser, origin)
 
@@ -1361,6 +1448,7 @@ def main():
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
     r = Report(args.verbose)
     static_checks(r)
+    server_checks(r)
     if not args.static:
         browser_checks(r)
     print("\n%d checks passed, %d failed" % (r.passed, len(r.failures)))
