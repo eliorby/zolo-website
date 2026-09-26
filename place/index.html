@@ -79,7 +79,7 @@
     }
     .share-card .lead {
       margin: 0 auto 22px;
-      max-width: 32em;
+      max-width: 44em;
       font-size: 17px;
       line-height: 1.55;
       color: var(--on-background-muted-color);
@@ -129,16 +129,21 @@
 </head>
 
 <body>
-  <a class="skip-link" href="#main-content"><span data-l10n="en">Skip to main content</span><span lang="he" data-l10n="he">דלג לתוכן הראשי</span></a>
+  <a class="skip-link" href="#main-content">
+    <span data-l10n="en">Skip to main content</span>
+    <span lang="he" data-l10n="he">דלג לתוכן הראשי</span>
+  </a>
 
   <div class="page">
     <header>
       <a class="brand" href="/" data-home-link>
         <img src="/assets/common/icon_zolo_96.webp" alt="" width="36" height="36">
+
         <div class="brand-text" data-l10n="en">
           <span class="brand-name">Zolo</span>
           <span class="brand-tagline">Slicing Prices</span>
         </div>
+
         <div class="brand-text" lang="he" data-l10n="he">
           <span class="brand-name">זולו</span>
           <span class="brand-tagline">לבלות בזול</span>
@@ -149,8 +154,18 @@
         <button class="theme-toggle" type="button" aria-label="Theme: system" data-theme-btn>
           <span aria-hidden="true">🖥️</span>
         </button>
-        <button class="lang-toggle" type="button" aria-label="Switch language to Hebrew" data-l10n="en" data-share-lang="he" lang="he">עב</button>
-        <button class="lang-toggle" type="button" aria-label="החלפת שפה לאנגלית" data-l10n="he" data-share-lang="en" lang="en">EN</button>
+
+        <button class="lang-toggle" type="button"
+                aria-label="Switch language to Hebrew"
+                data-l10n="en"
+                data-share-lang="he"
+                lang="he">עב</button>
+
+        <button class="lang-toggle" type="button"
+                aria-label="החלפת שפה לאנגלית"
+                data-l10n="he"
+                data-share-lang="en"
+                lang="en">EN</button>
       </div>
     </header>
 
@@ -161,41 +176,111 @@
           <span data-share-v="place">Someone shared a place with you</span>
           <span data-share-v="deal">Someone shared a happy hour deal with you</span>
         </h1>
-        <p class="lead" data-share-v="generic">Zolo shows real-time happy hour deals at bars, pubs, restaurants and cafés in Tel Aviv.</p>
-        <p class="lead" data-share-v="place">Open it in the Zolo app to see it on the map, with its happy hour deals and hours.</p>
-        <p class="lead" data-share-v="deal">Open it in the Zolo app to see the deal and everything else that's on at this place. If the deal has changed since it was shared, the app shows what's on there now.</p>
-        <p class="notice" data-share-v="invalid">This link looks incomplete. It may have been cut off when it was copied: ask for it again, or open Zolo and find the place on the map.</p>
+
+        <p class="lead" data-share-v="generic">
+          Zolo shows real-time happy hour deals<br>
+          at bars, pubs, restaurants and cafés in Tel Aviv.
+        </p>
+
+        <p class="lead" data-share-v="place">
+          Open it in Zolo to see it on the map,<br>
+          along with its happy hour deals and times.
+        </p>
+
+        <p class="lead" data-share-v="deal">
+          Open it in Zolo to see the deal and everything else that's on at this place.<br>
+          If the deal has changed since it was shared, the app shows what's on there now.
+        </p>
+
+        <p class="notice" data-share-v="invalid">
+          This link looks incomplete.<br>
+          It may have been cut off when it was copied.<br>
+          Ask for it again, or open Zolo and find the place on the map.
+        </p>
 
         <div class="actions">
-          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-open-app hidden>Open in Zolo</a>
-          <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-cta="share" aria-label="Get it on Google Play">
-            <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_English.png" alt="" width="175" height="52" decoding="async">
+          <a class="btn primary"
+             href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+             data-open-app
+             hidden>Open in Zolo</a>
+
+          <a class="store-badge"
+             href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+             data-cta="share"
+             aria-label="Get it on Google Play">
+            <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_English.png"
+                 alt=""
+                 width="175"
+                 height="52"
+                 decoding="async">
           </a>
         </div>
+
         <p class="cta-note">Free · Android · Tel Aviv</p>
-        <p class="hint" data-share-v="place deal">Just installed Zolo? Go back to the message and tap the link again: it opens right in the app.</p>
+
+        <p class="hint" data-share-v="place deal">
+          Just installed Zolo?<br>
+          Go back to the message and tap the link again -<br>
+          it'll open directly in the app.
+        </p>
+
         <a class="home" href="/en/">Go to the Zolo home page</a>
       </section>
 
       <section class="section share-card" lang="he" dir="rtl" data-l10n="he">
         <h1>
           <span data-share-v="generic">שיתוף מזולו</span>
-          <span data-share-v="place">שיתפו איתכם מקום</span>
-          <span data-share-v="deal">שיתפו איתכם דיל של האפי האוור</span>
+          <span data-share-v="place">שיתפו איתך מקום</span>
+          <span data-share-v="deal">שיתפו איתך דיל של האפי האוור</span>
         </h1>
-        <p class="lead" data-share-v="generic">בזולו תמצאו דילים של האפי האוור בזמן אמת בברים, פאבים, מסעדות ובתי קפה בתל אביב.</p>
-        <p class="lead" data-share-v="place">פתחו אותו באפליקציית זולו כדי לראות אותו על המפה, עם הדילים ושעות ההאפי האוור.</p>
-        <p class="lead" data-share-v="deal">פתחו אותו באפליקציית זולו כדי לראות את הדיל ואת כל מה שקורה במקום. אם הדיל השתנה מאז ששותף, תראו באפליקציה מה קורה שם עכשיו.</p>
-        <p class="notice" data-share-v="invalid">נראה שהקישור לא שלם. ייתכן שהוא נחתך בהעתקה: בקשו אותו שוב, או פתחו את זולו ומצאו את המקום על המפה.</p>
+
+        <p class="lead" data-share-v="generic">
+          בזולו תמצאו דילים של האפי האוור בזמן אמת<br>
+          בברים, פאבים, מסעדות ובתי קפה בתל אביב.
+        </p>
+
+        <p class="lead" data-share-v="place">
+          אפשר לפתוח את המקום באפליקציית זולו ולראות אותו על המפה,<br>
+          יחד עם הדילים ושעות ההאפי האוור.
+        </p>
+
+        <p class="lead" data-share-v="deal">
+          אפשר לפתוח את הדיל באפליקציית זולו ולראות גם את כל מה שקורה במקום.<br>
+          אם הדיל השתנה מאז ששיתפו אותו, האפליקציה תציג מה קורה שם עכשיו.
+        </p>
+
+        <p class="notice" data-share-v="invalid">
+          נראה שהקישור לא שלם.<br>
+          ייתכן שהוא נחתך בהעתקה.<br>
+          אפשר לבקש אותו שוב, או לפתוח את זולו ולמצוא את המקום על המפה.
+        </p>
 
         <div class="actions">
-          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-open-app hidden>פתיחה בזולו</a>
-          <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.zolo.deals" data-cta="share" aria-label="להורדה מ: Google Play">
-            <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png" alt="" width="175" height="52" decoding="async">
+          <a class="btn primary"
+             href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+             data-open-app
+             hidden>פתיחה בזולו</a>
+
+          <a class="store-badge"
+             href="https://play.google.com/store/apps/details?id=com.zolo.deals"
+             data-cta="share"
+             aria-label="להורדה מ: Google Play">
+            <img src="/assets/badges/google-play/GetItOnGooglePlay_Badge_Web_color_Hebrew.png"
+                 alt=""
+                 width="175"
+                 height="52"
+                 decoding="async">
           </a>
         </div>
+
         <p class="cta-note">חינם · אנדרואיד · תל אביב</p>
-        <p class="hint" data-share-v="place deal">התקנתם את זולו? חזרו להודעה והקישו שוב על הקישור: הוא ייפתח ישר באפליקציה.</p>
+
+        <p class="hint" data-share-v="place deal">
+          בדיוק התקנת את זולו?<br>
+          פשוט פותחים שוב את הקישור שבהודעה -<br>
+          והוא ייפתח ישר באפליקציה.
+        </p>
+
         <a class="home" href="/he/">לדף הבית של זולו</a>
       </section>
     </main>
@@ -207,16 +292,18 @@
         <a href="/en/accessibility/">Accessibility</a>
         <a href="/en/delete/">Delete account</a>
       </div>
+
       <div class="footer-links" lang="he" dir="rtl" data-l10n="he">
         <a href="/he/privacy/">פרטיות</a>
         <a href="/he/terms/">תנאים</a>
         <a href="/he/accessibility/">נגישות</a>
         <a href="/he/delete/">מחיקת חשבון</a>
       </div>
+
       <div>© Zolo</div>
     </footer>
   </div>
 
-<script src="/assets/common/site.js" defer></script>
+  <script src="/assets/common/site.js" defer></script>
 </body>
 </html>
