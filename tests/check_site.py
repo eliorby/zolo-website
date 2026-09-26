@@ -973,6 +973,7 @@ SHARE_INFO_JS = r"""(() => {
       badge: a.querySelector("img").getAttribute("src"), inFirstScreen: b.width > 0 && b.height > 0 && b.bottom <= innerHeight }; }),
     home: all("a.home").map(a => a.getAttribute("href")),
     langToggles: all("[data-share-lang]").map(b => b.textContent.trim()),
+    buttons: all("button").map(b => b.hasAttribute("data-theme-btn") ? "theme" : b.hasAttribute("data-share-lang") ? "language" : b.outerHTML.slice(0, 60)),
     themeLabel: document.querySelector("[data-theme-btn]") ? document.querySelector("[data-theme-btn]").getAttribute("aria-label") : null,
     appStore: !!document.querySelector('a[href*="apps.apple.com"]'),
     brokenImages: Array.from(document.images).filter(i => vis(i) && i.complete && i.naturalWidth === 0).map(i => i.getAttribute("src")),
@@ -1114,6 +1115,8 @@ def share_checks(r, browser, origin):
     r.check(rings == [True, True], "%s: focused Open in Zolo and Google Play show an outline (%s)" % (SHARE_PATH, rings))
 
     # ---- without JavaScript: English, generic message, install link still works ----
+    with_js = browser.evaluate(SHARE_INFO_JS)["buttons"]
+    r.check("theme" in with_js and "language" in with_js, "%s: with JavaScript the theme and language buttons are shown (%s)" % (SHARE_PATH, with_js))
     browser.set_javascript(False)
     browser.navigate(base + deal_q)
     nojs = browser.evaluate(SHARE_INFO_JS)
@@ -1122,6 +1125,9 @@ def share_checks(r, browser, origin):
             "%s: without JavaScript one English generic <h1> (%s)" % (SHARE_PATH, nojs["h1"]))
     r.check(len(nojs["play"]) == 1 and nojs["play"][0]["href"] == PLAY_URL and nojs["play"][0]["inFirstScreen"] and not nojs["open"] and not nojs["langToggles"],
             "%s: without JavaScript the Google Play link is in the first screen; no inert buttons (%s)" % (SHARE_PATH, nojs))
+    r.check(not nojs["buttons"] and nojs["home"] == ["/en/"] and nojs["lang"] == "en" and nojs["dir"] in ("", "ltr"),
+            "%s: without JavaScript no visible buttons (theme/language/Open in Zolo need JS); Home link, English, LTR (%s %s %s)"
+            % (SHARE_PATH, nojs["buttons"], nojs["home"], nojs["lang"]))
     browser.drain()
 
     # ---- other paths: never a dead end, assets resolve at any depth ----

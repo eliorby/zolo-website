@@ -49,6 +49,8 @@
   <meta name="robots" content="noindex,follow">
 
   <link rel="stylesheet" href="/assets/common/site.css">
+  <!-- The theme button needs site.js; without JavaScript hide it rather than show an inert control -->
+  <noscript><style>[data-theme-btn] { display: none !important; }</style></noscript>
   <style>
     /* Language: English unless place.js chose Hebrew (so no-JS visitors get English, like the redirect pages) */
     html:not([data-lang="he"]) [data-l10n="he"],
