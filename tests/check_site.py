@@ -56,7 +56,7 @@ SMALL_ICON_MAX_DISPLAY_PX = 64
 STORE_URLS = {"google_play": PLAY_URL}          # add "app_store": "https://apps.apple.com/..." when it exists
 STORE_HOSTS = {"google_play": "play.google.com", "app_store": "apps.apple.com"}
 
-# ---- Share links: contract owned by the app session (~/project-runtimes/zolo-app-runtime/share-link-contract.md) ----
+# ---- Share links: contract owned by the app (docs/share-link-contract.md in the zolo-flutter repo) ----
 SHARE_PATH = "/place/"                          # https://zolo-deals.com/place/?id=<placeId>[&deal=<dealKey>]
 SHARE_ID_RE = r"^[A-Za-z0-9_-]{1,64}$"
 SHARE_DEAL_RE = r"^[0-9a-f]{8}$"

@@ -1,7 +1,7 @@
 /* Zolo share-link fallback (/place/). Loaded synchronously in <head> so the right language and
  * message variant are chosen before first paint.
  *
- * Contract: ~/project-runtimes/zolo-app-runtime/share-link-contract.md (owned by the app session)
+ * Contract: docs/share-link-contract.md in the zolo-flutter repo (owned by the app)
  *   https://zolo-deals.com/place/?id=<placeId>[&deal=<dealKey>]
  *   id   ^[A-Za-z0-9_-]{1,64}$, exactly once      deal ^[0-9a-f]{8}$, at most once
  *   unknown parameters ignored; malformed percent-encoding, a repeated id/deal or a URL longer than

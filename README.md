@@ -8,7 +8,7 @@ language redirects, `fb/`, `ig/`, `tt/` are social vanity redirects, `404.html` 
 ## Share links (`/place/`)
 
 The app shares `https://zolo-deals.com/place/?id=<placeId>[&deal=<dealKey>]`. The contract is owned by
-the app session (`~/project-runtimes/zolo-app-runtime/share-link-contract.md`): change it there first,
+the app (`docs/share-link-contract.md` in the zolo-flutter repo): change it there first,
 never here. With the app installed and App Links verified, Android opens the app directly; otherwise
 `place/index.html` is the fallback. `assets/common/place.js` validates the query exactly like the app
 and only selects static copy (EN/HE, place/deal/invalid); nothing from the URL is written into the page.
