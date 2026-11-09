@@ -8,7 +8,7 @@ The project is moving to one handoff kept outside the repo, this roadmap, and a 
 
 | # | Step | Status |
 |---|---|---|
-| 1 | Paths and names | awaiting verification: no rename; no data folder exists; the share-link contract references point to `docs/share-link-contract.md` in the zolo-flutter repo |
+| 1 | Paths and names | done: no rename; no data folder exists; every share-link contract reference points to `docs/share-link-contract.md` in the zolo-flutter repo |
 | 2 | Consolidation and handoff install | not started |
 | 3 | Minimal consistency edits to the repo `CLAUDE.md` | not applicable: the repo has no `CLAUDE.md`; step 8 creates one |
 | 4 | Archive round | not started |
